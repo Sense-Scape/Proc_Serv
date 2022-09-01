@@ -1,10 +1,8 @@
 #include "./BaseModule.h"
 
-BaseModule::BaseModule(size_t uMaxInputBufferSize) : m_pNextModule(nullptr),
+BaseModule::BaseModule(unsigned uMaxInputBufferSize) : m_pNextModule(nullptr),
 m_uMaxInputBufferSize(uMaxInputBufferSize),
-m_cbBaseChunkBuffer(uMaxInputBufferSize),
-m_thread(),
-m_BufferStateMutex()
+m_cbBaseChunkBuffer(uMaxInputBufferSize)
 {
 }
 

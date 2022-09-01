@@ -3,11 +3,16 @@
 
 #include <iostream>
 #include "BaseModule.h"
+#include "WinUDPRxModule.h"
 
 int main()
 {
-    auto a = std::make_shared<BaseModule>(1);
+    auto a = std::make_shared<WinUDPRxModule>("127.0.0.1", "8080", 2);
     
+	while (1)
+	{
+
+	}
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu

@@ -5,6 +5,9 @@
 #include <string>
 #include <winsock2.h>
 
+// DLL required for windows socket
+#pragma comment(lib,"WS2_32")
+
 /*Custom Includes*/
 #include "BaseModule.h"
 
@@ -23,14 +26,15 @@ private:
 	std::string m_sIPAddress;	///< string format of host IP address
 	std::string m_sUDPPort;		///< string format of port to listen on
     unsigned m_uBufferLen;      ///< Maxmimum UDP buffer length
-    SOCKET m_Socket;            ///< Windows socket
+    SOCKET m_WinSocket;            ///< Windows socket
     WSADATA m_WSA;              ///< Web Security Appliance for Windows socket
+    struct sockaddr_in m_SocketStruct;  ///< IPv4 Socket Address
 
     /**
      * @brief Creates the classes windows socket
      *
      */
-    void MakeUDPSocket();
+    void ConnectUDPSocket();
 
 protected:
 
