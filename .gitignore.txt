@@ -1,0 +1,3 @@
+.vs/
+CPP_Web_App/.vs/
+Debug/
