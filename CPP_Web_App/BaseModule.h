@@ -22,13 +22,14 @@
 class BaseModule
 {
 private:
-    std::shared_ptr<BaseModule> m_pNextModule; ///< Shared pointer to next module into which messages are passed
+   
     size_t m_uMaxInputBufferSize;              ///< Max size of the class input buffer
 
 protected:
     CircularBuffer<std::shared_ptr<BaseChunk>> m_cbBaseChunkBuffer; ///< Input buffer of module
     std::thread m_thread;                                           ///< Thread object for module processing
     std::mutex m_BufferStateMutex;                                  ///< Mutex to facilitate multi module buffer size checking
+    std::shared_ptr<BaseModule> m_pNextModule;                      ///< Shared pointer to next module into which messages are passed
 
     /**
      * @brief Returns true if a message pointer had been retrieved an passed on to next module.

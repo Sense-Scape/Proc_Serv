@@ -1,11 +1,12 @@
 #include "WinUDPRxModule.h"
 
-WinUDPRxModule::WinUDPRxModule(std::string sIPAddress, std::string sUDPPort, unsigned uMaxInputBufferSize): BaseModule(uMaxInputBufferSize),
-																											m_sIPAddress(sIPAddress),
-																											m_sUDPPort(sUDPPort),
-																											m_WinSocket(),
-																											m_WSA(),
-																											m_SocketStruct()
+WinUDPRxModule::WinUDPRxModule(std::string sIPAddress, std::string sUDPPort, unsigned uMaxInputBufferSize, unsigned uBufferLen = 512): BaseModule(uMaxInputBufferSize),
+																																	m_sIPAddress(sIPAddress),
+																																	m_sUDPPort(sUDPPort),
+																																	m_uBufferLen(uBufferLen),
+																																	m_WinSocket(),
+																																	m_WSA(),
+																																	m_SocketStruct()
 {
 	ConnectUDPSocket();
 
@@ -54,3 +55,29 @@ void WinUDPRxModule::ConnectUDPSocket()
 
 	std::cout << "Socket binding complete: IP: " + m_sIPAddress + " Port: " + m_sUDPPort + " \n";
 }
+
+void WinUDPRxModule::Process()
+{
+		while (true)
+		{
+			char buf[512];
+			unsigned recv_len = 0;
+
+			int slen = sizeof(m_SocketStruct);
+			int s = sizeof(m_SocketStruct);
+
+			//clear the buffer by filling null, it might have previously received data
+			memset(buf, '\0', 512);
+
+			////try to receive some data, this is a blocking 
+			std::cout << "here" << std::endl;
+			if ((recv_len = recvfrom(m_WinSocket, buf, 512, 0, (struct sockaddr*)&m_SocketStruct, &slen)) == SOCKET_ERROR)
+			{
+				printf("recvfrom() failed with error code : %d", WSAGetLastError());
+			}
+			std::cout << "here" << std::endl;
+			std::cout << recv_len << std::endl;
+			//printf("Data: %s\n", buf);
+		}
+}
+

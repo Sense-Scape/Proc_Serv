@@ -7,8 +7,10 @@
 
 int main()
 {
-    auto a = std::make_shared<WinUDPRxModule>("127.0.0.1", "8080", 2);
+    auto a = std::make_shared<WinUDPRxModule>("192.168.1.35", "8080", 2, 512);
     
+	a->StartProcessing();
+
 	while (1)
 	{
 

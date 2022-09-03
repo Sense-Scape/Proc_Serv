@@ -8,16 +8,19 @@ m_cbBaseChunkBuffer(uMaxInputBufferSize)
 
 void BaseModule::Process()
 {
-    std::shared_ptr<BaseChunk> pBaseChunk;
-    if (TakeFromBuffer(pBaseChunk))
+    while (true)
     {
-        // In derived classes processing should be completed here
+        std::shared_ptr<BaseChunk> pBaseChunk;
+        if (TakeFromBuffer(pBaseChunk))
+        {
+            // In derived classes processing should be completed here
 
-        // if next module nullptr then this is a "terminating module"
-        // and the pointer to the message will be droppped
-        if (m_pNextModule != nullptr)
-            TryPassChunk(pBaseChunk);
-    }
+            // if next module nullptr then this is a "terminating module"
+            // and the pointer to the message will be droppped
+            if (m_pNextModule != nullptr)
+                TryPassChunk(pBaseChunk);
+        }
+    }  
 }
 
 void BaseModule::StartProcessing()
