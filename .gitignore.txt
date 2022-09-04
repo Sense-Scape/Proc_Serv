@@ -1,3 +1,4 @@
 .vs/
-CPP_Web_App/.vs/
+CPP_Web_App/x64/*
 Debug/
+x64/*
