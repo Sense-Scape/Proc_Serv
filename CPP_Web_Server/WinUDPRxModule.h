@@ -11,6 +11,7 @@
 
 /*Custom Includes*/
 #include "BaseModule.h"
+#include "SC_Chunk_Types/CPP_Chunk_Types/UDPChunk.h"
 
 
 /**
@@ -26,17 +27,24 @@ class WinUDPRxModule :
 private:
 	std::string m_sIPAddress;	        ///< string format of host IP address
 	std::string m_sUDPPort;		        ///< string format of port to listen on
-    int m_uBufferLen;                   ///< Maxmimum UDP buffer length
+    int m_iBufferLen;                   ///< Maxmimum UDP buffer length
     SOCKET m_WinSocket;                 ///< Windows socket
     WSADATA m_WSA;                      ///< Web Security Appliance for Windows socket
     struct sockaddr_in m_SocketStruct;  ///< IPv4 Socket Address
 
     /**
-     * @brief Creates the classes windows socket
-     *
+     * @brief Creates the windows socket using member variables
      */
     void ConnectUDPSocket();
 
+    /*
+     * @brief Closes Windows socket
+     */
+    void CloseUDPSocket();
+
+    /*
+     * @brief Module process to reveice data from UDP buffer and pass to next module
+     */
     void Process() override;
 
 protected:

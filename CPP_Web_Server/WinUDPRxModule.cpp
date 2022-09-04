@@ -1,9 +1,9 @@
 #include "WinUDPRxModule.h"
 
-WinUDPRxModule::WinUDPRxModule(std::string sIPAddress, std::string sUDPPort, unsigned uMaxInputBufferSize, int uBufferLen = 512): BaseModule(uMaxInputBufferSize),
+WinUDPRxModule::WinUDPRxModule(std::string sIPAddress, std::string sUDPPort, unsigned uMaxInputBufferSize, int iBufferLen = 512): BaseModule(uMaxInputBufferSize),
 																																	m_sIPAddress(sIPAddress),
 																																	m_sUDPPort(sUDPPort),
-																																	m_uBufferLen(uBufferLen),
+																																	m_iBufferLen(iBufferLen),
 																																	m_WinSocket(),
 																																	m_WSA(),
 																																	m_SocketStruct()
@@ -14,7 +14,7 @@ WinUDPRxModule::WinUDPRxModule(std::string sIPAddress, std::string sUDPPort, uns
 
 WinUDPRxModule::~WinUDPRxModule()
 {
-
+	CloseUDPSocket();
 }
 
 void WinUDPRxModule::ConnectUDPSocket()
@@ -58,18 +58,29 @@ void WinUDPRxModule::ConnectUDPSocket()
 
 void WinUDPRxModule::Process()
 {
-		while (true)
-		{
-			//TODO: if this buffer is persistent, ensure that it is cleared before use
-			char cReceivingBuf[512];
-			unsigned uReceivedDataLength = 0;
+	while (true)
+	{
+		//TODO: if this buffer is persistent, ensure that it is cleared before use
+		char cReceivingBuf[512];
+		unsigned uReceivedDataLength = 0;
 
-			////try to receive some data, this is a blocking 
-			if ((uReceivedDataLength = recvfrom(m_WinSocket, cReceivingBuf, 512, 0, (struct sockaddr*)&m_SocketStruct, &m_uBufferLen)) == SOCKET_ERROR)
-			{
-				printf("recvfrom() failed with error code : %d", WSAGetLastError());
-			}
-			std::cout << uReceivedDataLength << std::endl;
+		// Try to receive some data, this is a blocking 
+		if ((uReceivedDataLength = recvfrom(m_WinSocket, cReceivingBuf, 512, 0, (struct sockaddr*)&m_SocketStruct, &m_iBufferLen)) == SOCKET_ERROR)
+			printf("recvfrom() failed with error code : %d", WSAGetLastError());
+		
+		// Creating Chunk
+		auto pUDPDataChunk = std::make_shared<UDPChunk>(m_iBufferLen);
+		for (int idataIndex = 0; idataIndex < m_iBufferLen; idataIndex++)
+		{
+			pUDPDataChunk->m_cvDataChunk.push_back(cReceivingBuf[idataIndex]);
 		}
+
+		if (m_pNextModule != nullptr)
+			TryPassChunk(std::dynamic_pointer_cast<BaseChunk>(pUDPDataChunk));
+	}
 }
 
+void WinUDPRxModule::CloseUDPSocket()
+{
+	closesocket(m_WinSocket);
+}
