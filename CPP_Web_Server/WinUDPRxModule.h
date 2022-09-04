@@ -26,7 +26,7 @@ class WinUDPRxModule :
 private:
 	std::string m_sIPAddress;	        ///< string format of host IP address
 	std::string m_sUDPPort;		        ///< string format of port to listen on
-    unsigned m_uBufferLen;              ///< Maxmimum UDP buffer length
+    int m_uBufferLen;                   ///< Maxmimum UDP buffer length
     SOCKET m_WinSocket;                 ///< Windows socket
     WSADATA m_WSA;                      ///< Web Security Appliance for Windows socket
     struct sockaddr_in m_SocketStruct;  ///< IPv4 Socket Address
@@ -50,7 +50,7 @@ public:
      * @param sUDPPort string format of port to listen on
      *
      */
-	WinUDPRxModule(std::string sIPAddress, std::string sUDPPort, unsigned uMaxInputBufferSize, unsigned uBufferLen);
+	WinUDPRxModule(std::string sIPAddress, std::string sUDPPort, unsigned uMaxInputBufferSize, int uBufferLen);
     ~WinUDPRxModule();
 };
 
