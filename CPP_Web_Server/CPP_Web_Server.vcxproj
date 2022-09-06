@@ -145,22 +145,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="BaseModule.cpp" />
     <ClCompile Include="CPP_Web_Server.cpp" />
-    <ClCompile Include="SessionProcModule.cpp" />
-    <ClCompile Include="WavProcModule.cpp" />
-    <ClCompile Include="WinUDPRxModule.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BaseModule.h" />
-    <ClInclude Include="CircularBuffer.h" />
-    <ClInclude Include="SessionProcModule.h" />
-    <ClInclude Include="WavProcModule.h" />
-    <ClInclude Include="WinUDPRxModule.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\SC_Chunk_Types\CPP_Chunk_Types\CPP_Chunk_Types.vcxproj">
-      <Project>{5583b73c-eb54-4cb6-86e1-439a4b9a9315}</Project>
+    <ProjectReference Include="..\..\Cpp_Module_Types\Cpp_Module_Types\Cpp_Module_Types.vcxproj">
+      <Project>{f9dd63fb-bedd-44a1-8b1c-8cd87d22fa0e}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
