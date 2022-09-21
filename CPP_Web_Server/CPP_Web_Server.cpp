@@ -13,23 +13,32 @@
 #include "Cpp_Module_Types/Cpp_Module_Types/WinUDPRxModule.h"
 #include "Cpp_Module_Types/Cpp_Module_Types/SessionProcModule.h"
 #include "Cpp_Module_Types/Cpp_Module_Types/RouterModule.h"
+#include "Cpp_Module_Types/Cpp_Module_Types/WAVWriterModule.h"
 
 int main()
 {
+	// General Config
+	std::string sAudioFilePath = "D:/Recordings/";
+
 	// Creating pipeline modules
     auto pUDPRXModule = std::make_shared<WinUDPRxModule>("192.168.0.105", "8080", 20, 512);
 	auto pWAVSessionProcModule = std::make_shared<SessionProcModule>(20);
 	auto pSessionChunkRouter = std::make_shared<RouterModule>(20);
+	auto pWAVWriterModule = std::make_shared<WAVWriterModule>(sAudioFilePath, 20);
 
 	// Connection pipeline modules
 	pUDPRXModule->SetNextModule(pWAVSessionProcModule);
 	pWAVSessionProcModule->SetNextModule(pSessionChunkRouter);
-	pSessionChunkRouter->SetNextModule(nullptr);
+	pSessionChunkRouter->SetNextModule(nullptr); // Note: this module needs registered outputs not set outputs
+	pWAVWriterModule->SetNextModule(nullptr); // Note: This is a termination module so has no next module
+
+	pSessionChunkRouter->RegisterOutputModule(pWAVWriterModule, ChunkType::WAVChunk);
 
 	// Starting pipeline modules
 	pUDPRXModule->StartProcessing();
 	pWAVSessionProcModule->StartProcessing();
 	pSessionChunkRouter->StartProcessing();
+	pWAVWriterModule->StartProcessing();
 
 	while (1)
 	{
