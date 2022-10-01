@@ -29,7 +29,7 @@ int main()
 	// Connection pipeline modules
 	pUDPRXModule->SetNextModule(pWAVSessionProcModule);
 	pWAVSessionProcModule->SetNextModule(pSessionChunkRouter);
-	pSessionChunkRouter->SetNextModule(nullptr); // Note: this module needs registered outputs not set outputs
+	pSessionChunkRouter->SetNextModule(nullptr); // Note: this module needs registered outputs not set outputs as it is a one to many
 	pWAVWriterModule->SetNextModule(nullptr); // Note: This is a termination module so has no next module
 
 	pSessionChunkRouter->RegisterOutputModule(pWAVWriterModule, ChunkType::WAVChunk);
