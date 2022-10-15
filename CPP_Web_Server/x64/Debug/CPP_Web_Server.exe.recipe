@@ -2,6 +2,9 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
+      <FullPath>C:\Users\Grant\Documents\SoundScape\Cpp_Web_Server\x64\Debug\BaseModule.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
       <FullPath>C:\Users\Grant\Documents\SoundScape\Cpp_Web_Server\x64\Debug\CPP_Web_Server.exe</FullPath>
     </ProjectOutput>
   </ProjectOutputs>

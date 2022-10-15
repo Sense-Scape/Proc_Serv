@@ -1,4 +1,7 @@
+# Visual Studio directories to ignore
 .vs/
-CPP_Web_App/x64/*
+
+# Build directories to ignore
 Debug/
-x64/*
+Release/
+x64/

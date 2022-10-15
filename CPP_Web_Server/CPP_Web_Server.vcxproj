@@ -89,7 +89,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SC_INCLUDE_DIRS)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SC_INCLUDE_DIRS)\Cpp_Chunk_Types\Cpp_Chunk_Types;$(SC_INCLUDE_DIRS)\Cpp_Module_Types\Cpp_Module_Types\Generic\GenericModules\GenericModules; $(SC_INCLUDE_DIRS)\Cpp_Module_Types\Cpp_Module_Types\Windows\WinModules\WinModules;$(SC_INCLUDE_DIRS)\Cpp_Module_Types\Cpp_Module_Types\Generic\GenericModules\GenericModules; $(SC_INCLUDE_DIRS)\Cpp_Module_Types\Cpp_Module_Types\Base\BaseModule\BaseModule</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -104,6 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SC_INCLUDE_DIRS)\Cpp_Chunk_Types\Cpp_Chunk_Types;$(SC_INCLUDE_DIRS)\Cpp_Module_Types\Cpp_Module_Types\Generic\GenericModules\GenericModules; $(SC_INCLUDE_DIRS)\Cpp_Module_Types\Cpp_Module_Types\Windows\WinModules\WinModules;$(SC_INCLUDE_DIRS)\Cpp_Module_Types\Cpp_Module_Types\Generic\GenericModules\GenericModules; $(SC_INCLUDE_DIRS)\Cpp_Module_Types\Cpp_Module_Types\Base\BaseModule\BaseModule</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -118,12 +119,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SC_INCLUDE_DIRS)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SC_INCLUDE_DIRS)\Cpp_Chunk_Types\Cpp_Chunk_Types;$(SC_INCLUDE_DIRS)\Cpp_Module_Types\Cpp_Module_Types\Generic\GenericModules\GenericModules; $(SC_INCLUDE_DIRS)\Cpp_Module_Types\Cpp_Module_Types\Windows\WinModules\WinModules;$(SC_INCLUDE_DIRS)\Cpp_Module_Types\Cpp_Module_Types\Generic\GenericModules\GenericModules; $(SC_INCLUDE_DIRS)\Cpp_Module_Types\Cpp_Module_Types\Base\BaseModule\BaseModule</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies);</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SC_INCLUDE_DIRS)\Cpp_Chunk_Types\x64\Debug;$(SC_INCLUDE_DIRS)\Cpp_Module_Types\Cpp_Module_Types\Generic\GenericModules\x64\Debug; $(SC_INCLUDE_DIRS)\Cpp_Module_Types\Cpp_Module_Types\Windows\WinModules\x64\Debug;$(SC_INCLUDE_DIRS)\Cpp_Module_Types\Cpp_Module_Types\Generic\GenericModules\x64\Debug;</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -134,6 +136,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SC_INCLUDE_DIRS)\Cpp_Chunk_Types\Cpp_Chunk_Types;$(SC_INCLUDE_DIRS)\Cpp_Module_Types\Cpp_Module_Types\Generic\GenericModules\GenericModules; $(SC_INCLUDE_DIRS)\Cpp_Module_Types\Cpp_Module_Types\Windows\WinModules\WinModules;$(SC_INCLUDE_DIRS)\Cpp_Module_Types\Cpp_Module_Types\Generic\GenericModules\GenericModules; $(SC_INCLUDE_DIRS)\Cpp_Module_Types\Cpp_Module_Types\Base\BaseModule\BaseModule</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -149,8 +152,11 @@
     <ProjectReference Include="..\..\Cpp_Chunk_Types\Cpp_Chunk_Types\CPP_Chunk_Types.vcxproj">
       <Project>{5583b73c-eb54-4cb6-86e1-439a4b9a9315}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\Cpp_Module_Types\Cpp_Module_Types\Cpp_Module_Types.vcxproj">
-      <Project>{f9dd63fb-bedd-44a1-8b1c-8cd87d22fa0e}</Project>
+    <ProjectReference Include="..\..\Cpp_Module_Types\Cpp_Module_Types\Generic\GenericModules\GenericModules\GenericModules.vcxproj">
+      <Project>{5c33d809-da24-446c-b5cc-980811441d4f}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Cpp_Module_Types\Cpp_Module_Types\Windows\WinModules\WinModules\WinModules.vcxproj">
+      <Project>{2ee8f010-460c-460c-88bc-bd58dda34de2}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
