@@ -89,12 +89,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>
-      </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SC_LIB_DIR)/Lib_Chunk_Types/CPP_Chunk_Types;$(SC_LIB_DIR)/Lib_Base_Module/BaseModule;$(SC_LIB_DIR)/Lib_Generic_Modules/GenericModules;$(SC_LIB_DIR)/Lib_Windows_Modules/WinModules</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SC_LIB_DIR)/Lib_Chunk_Types\x64\Debug;$(SC_LIB_DIR)/Lib_Base_Module\x64\Debug;$(SC_LIB_DIR)/Lib_Generic_Modules/x64\Debug;$(SC_LIB_DIR)/Lib_Windows_Modules\x64\Debug</AdditionalLibraryDirectories>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies);</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -105,14 +106,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>
-      </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SC_LIB_DIR)/Lib_Chunk_Types/CPP_Chunk_Types;$(SC_LIB_DIR)/Lib_Base_Module/BaseModule;$(SC_LIB_DIR)/Lib_Generic_Modules/GenericModules;$(SC_LIB_DIR)/Lib_Windows_Modules/WinModules</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SC_LIB_DIR)/Lib_Chunk_Types\x64\Debug;$(SC_LIB_DIR)/Lib_Base_Module\x64\Debug;$(SC_LIB_DIR)/Lib_Generic_Modules/x64\Debug;$(SC_LIB_DIR)/Lib_Windows_Modules\x64\Debug</AdditionalLibraryDirectories>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies);</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -121,14 +123,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>
-      </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SC_LIB_DIR)/Lib_Chunk_Types/CPP_Chunk_Types;$(SC_LIB_DIR)/Lib_Base_Module/BaseModule;$(SC_LIB_DIR)/Lib_Generic_Modules/GenericModules;$(SC_LIB_DIR)/Lib_Windows_Modules/WinModules</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies);</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SC_INCLUDE_DIRS)\Cpp_Chunk_Types\x64\Debug;$(SC_INCLUDE_DIRS)\Cpp_Module_Types\Cpp_Module_Types\Generic\GenericModules\x64\Debug; $(SC_INCLUDE_DIRS)\Cpp_Module_Types\Cpp_Module_Types\Windows\WinModules\x64\Debug;$(SC_INCLUDE_DIRS)\Cpp_Module_Types\Cpp_Module_Types\Generic\GenericModules\x64\Debug;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SC_LIB_DIR)/Lib_Chunk_Types\x64\Debug;$(SC_LIB_DIR)/Lib_Base_Module\x64\Debug;$(SC_LIB_DIR)/Lib_Generic_Modules/x64\Debug;$(SC_LIB_DIR)/Lib_Windows_Modules\x64\Debug</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -139,18 +140,33 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>
-      </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SC_LIB_DIR)/Lib_Chunk_Types/CPP_Chunk_Types;$(SC_LIB_DIR)/Lib_Base_Module/BaseModule;$(SC_LIB_DIR)/Lib_Generic_Modules/GenericModules;$(SC_LIB_DIR)/Lib_Windows_Modules/WinModules</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SC_LIB_DIR)/Lib_Chunk_Types\x64\Debug;$(SC_LIB_DIR)/Lib_Base_Module\x64\Debug;$(SC_LIB_DIR)/Lib_Generic_Modules/x64\Debug;$(SC_LIB_DIR)/Lib_Windows_Modules\x64\Debug</AdditionalLibraryDirectories>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies);</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CPP_Web_Server.cpp" />
+    <ClCompile Include="PL_Windows_Proc_Serv.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\SC_Libs\Lib_Base_Module\BaseModule\BaseModule.vcxproj">
+      <Project>{36fd5345-1eb3-4a92-8f96-a07cc3fa8e32}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\SC_Libs\Lib_Chunk_Types\CPP_Chunk_Types\CPP_Chunk_Types.vcxproj">
+      <Project>{5583b73c-eb54-4cb6-86e1-439a4b9a9315}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\SC_Libs\Lib_Generic_Modules\GenericModules\GenericModules.vcxproj">
+      <Project>{5c33d809-da24-446c-b5cc-980811441d4f}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\SC_Libs\Lib_Windows_Modules\WinModules\WinModules.vcxproj">
+      <Project>{2ee8f010-460c-460c-88bc-bd58dda34de2}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
