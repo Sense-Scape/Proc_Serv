@@ -1,0 +1,12 @@
+[submodule "PL_Windows_Proc_Serv/components/Chunk_Types"]
+	path = PL_Windows_Proc_Serv/components/Chunk_Types
+	url = https://github.com/Sense-Scape/Chunk_Types.git
+[submodule "PL_Windows_Proc_Serv/components/Base_Module"]
+	path = PL_Windows_Proc_Serv/components/Base_Module
+	url = https://github.com/Sense-Scape/Base_Module.git
+[submodule "PL_Windows_Proc_Serv/components/Generic_Modules"]
+	path = PL_Windows_Proc_Serv/components/Generic_Modules
+	url = https://github.com/Sense-Scape/Generic_Modules.git
+[submodule "PL_Windows_Proc_Serv/components/Windows_Modules"]
+	path = PL_Windows_Proc_Serv/components/Windows_Modules
+	url = https://github.com/Sense-Scape/Windows_Modules.git
