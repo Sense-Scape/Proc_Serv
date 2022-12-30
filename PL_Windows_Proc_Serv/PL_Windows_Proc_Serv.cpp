@@ -15,6 +15,8 @@
 #include "RouterModule.h"
 #include "WAVAccumulator.h"
 #include "WAVWriterModule.h"
+#include "TimeToWAVModule.h"
+#include "HPFModule.h"
 
 int main()
 {
@@ -22,27 +24,38 @@ int main()
 	std::string sAudioFilePath = "D:/Recordings/";
 
 	// Creating pipeline modules
-    auto pUDPRXModule = std::make_shared<WinUDPRxModule>("192.168.0.105", "8080", 100, 512);
+    auto pUDPRXModule = std::make_shared<WinUDPRxModule>("192.168.1.60", "8080", 100, 512);
 	auto pWAVSessionProcModule = std::make_shared<SessionProcModule>(100);
 	auto pSessionChunkRouter = std::make_shared<RouterModule>(100);
-	auto pWAVAccumulatorModule = std::make_shared<WAVAccumulator>(2, 100);
+	auto pWAVAccumulatorModule = std::make_shared<WAVAccumulator>(2,100);
+	auto pWAVHPFModule = std::make_shared<HPFModule>(100,10,16000,5);
+	auto pTimeToWAVModule = std::make_shared<TimeToWAVModule>(100);
 	auto pWAVWriterModule = std::make_shared<WAVWriterModule>(sAudioFilePath, 100);
 
 	// Connection pipeline modules
 	pUDPRXModule->SetNextModule(pWAVSessionProcModule);
 	pWAVSessionProcModule->SetNextModule(pSessionChunkRouter);
 	pSessionChunkRouter->SetNextModule(nullptr); // Note: this module needs registered outputs not set outputs as it is a one to many
+	
+	// WAV Processing sub chain
+	pSessionChunkRouter->RegisterOutputModule(pTimeToWAVModule, ChunkType::TimeChunk);
+	pTimeToWAVModule->SetNextModule(pWAVAccumulatorModule);
+	pWAVAccumulatorModule->SetNextModule(pWAVHPFModule);
+	pWAVHPFModule->SetNextModule(pWAVWriterModule);
 	pWAVWriterModule->SetNextModule(nullptr); // Note: This is a termination module so has no next module
 
-	pSessionChunkRouter->RegisterOutputModule(pWAVAccumulatorModule, ChunkType::WAVChunk);
-	pWAVAccumulatorModule->SetNextModule(pWAVWriterModule);
-
-	// Starting pipeline modules
-	pUDPRXModule->StartProcessing();
-	pWAVSessionProcModule->StartProcessing();
-	pSessionChunkRouter->StartProcessing();
-	pWAVAccumulatorModule->StartProcessing();
+	// From its end to start
 	pWAVWriterModule->StartProcessing();
+	pWAVHPFModule->StartProcessing();
+	pTimeToWAVModule->StartProcessing();
+	pWAVAccumulatorModule->StartProcessing();
+	pSessionChunkRouter->StartProcessing();
+	pWAVSessionProcModule->StartProcessing();
+	pUDPRXModule->StartProcessing();
+	
+	
+	
+	
 
 	while (1)
 	{
