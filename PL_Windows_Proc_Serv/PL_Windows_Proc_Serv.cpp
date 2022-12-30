@@ -28,7 +28,7 @@ int main()
 	auto pWAVSessionProcModule = std::make_shared<SessionProcModule>(100);
 	auto pSessionChunkRouter = std::make_shared<RouterModule>(100);
 	auto pWAVAccumulatorModule = std::make_shared<WAVAccumulator>(2,100);
-	auto pWAVHPFModule = std::make_shared<HPFModule>(100,10,16000,5);
+	//auto pWAVHPFModule = std::make_shared<HPFModule>(100,10,8000,5); // Filter bloicking to low atm - need to calculate actual values
 	auto pTimeToWAVModule = std::make_shared<TimeToWAVModule>(100);
 	auto pWAVWriterModule = std::make_shared<WAVWriterModule>(sAudioFilePath, 100);
 
@@ -40,13 +40,13 @@ int main()
 	// WAV Processing sub chain
 	pSessionChunkRouter->RegisterOutputModule(pTimeToWAVModule, ChunkType::TimeChunk);
 	pTimeToWAVModule->SetNextModule(pWAVAccumulatorModule);
-	pWAVAccumulatorModule->SetNextModule(pWAVHPFModule);
-	pWAVHPFModule->SetNextModule(pWAVWriterModule);
+	pWAVAccumulatorModule->SetNextModule(pWAVWriterModule);
+	//pWAVHPFModule->SetNextModule(pWAVWriterModule);
 	pWAVWriterModule->SetNextModule(nullptr); // Note: This is a termination module so has no next module
 
 	// From its end to start
 	pWAVWriterModule->StartProcessing();
-	pWAVHPFModule->StartProcessing();
+	//pWAVHPFModule->StartProcessing();
 	pTimeToWAVModule->StartProcessing();
 	pWAVAccumulatorModule->StartProcessing();
 	pSessionChunkRouter->StartProcessing();
