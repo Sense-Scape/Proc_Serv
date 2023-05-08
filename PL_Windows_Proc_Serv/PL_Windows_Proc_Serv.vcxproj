@@ -72,19 +72,19 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)components/Chunk_Types/include;$(ProjectDir)components/Base_Module/include;$(ProjectDir)components/Generic_Modules/include;$(ProjectDir)components/Windows_Modules/include;$(ProjectDir)components/Nlohmann_JSON/include/nlohmann;</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)components/Chunk_Types/include;$(ProjectDir)components/Base_Module/include;$(ProjectDir)components/Generic_Modules/include;$(ProjectDir)components/Windows_Modules/include;$(ProjectDir)components/Nlohmann_JSON/include/nlohmann;$(ProjectDir)components/Nlohmann_JSON/include</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)components/Chunk_Types/include;$(ProjectDir)components/Base_Module/include;$(ProjectDir)components/Generic_Modules/include;$(ProjectDir)components/Windows_Modules/include;$(ProjectDir)components/Nlohmann_JSON/include/nlohmann;</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)components/Chunk_Types/include;$(ProjectDir)components/Base_Module/include;$(ProjectDir)components/Generic_Modules/include;$(ProjectDir)components/Windows_Modules/include;$(ProjectDir)components/Nlohmann_JSON/include/nlohmann;$(ProjectDir)components/Nlohmann_JSON/include</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)components/Chunk_Types/include;$(ProjectDir)components/Base_Module/include;$(ProjectDir)components/Generic_Modules/include;$(ProjectDir)components/Windows_Modules/include;$(ProjectDir)components/Nlohmann_JSON/include/nlohmann;</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)components/Chunk_Types/include;$(ProjectDir)components/Base_Module/include;$(ProjectDir)components/Generic_Modules/include;$(ProjectDir)components/Windows_Modules/include;$(ProjectDir)components/Nlohmann_JSON/include/nlohmann;$(ProjectDir)components/Nlohmann_JSON/include</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)components/Chunk_Types/include;$(ProjectDir)components/Base_Module/include;$(ProjectDir)components/Generic_Modules/include;$(ProjectDir)components/Windows_Modules/include;$(ProjectDir)components/Nlohmann_JSON/include/nlohmann;</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)components/Chunk_Types/include;$(ProjectDir)components/Base_Module/include;$(ProjectDir)components/Generic_Modules/include;$(ProjectDir)components/Windows_Modules/include;$(ProjectDir)components/Nlohmann_JSON/include/nlohmann;$(ProjectDir)components/Nlohmann_JSON/include</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -158,6 +158,9 @@
     </ProjectReference>
     <ProjectReference Include="components\Generic_Modules\GenericModules.vcxproj">
       <Project>{5c33d809-da24-446c-b5cc-980811441d4f}</Project>
+    </ProjectReference>
+    <ProjectReference Include="components\Nlohmann_JSON\Nlohmann_JSON.vcxproj">
+      <Project>{c1eb2978-8dc7-487e-905e-95cf4ea740c5}</Project>
     </ProjectReference>
     <ProjectReference Include="components\Windows_Modules\WinModules.vcxproj">
       <Project>{2ee8f010-460c-460c-88bc-bd58dda34de2}</Project>
