@@ -10,3 +10,6 @@
 [submodule "PL_Windows_Proc_Serv/components/Windows_Modules"]
 	path = PL_Windows_Proc_Serv/components/Windows_Modules
 	url = https://github.com/Sense-Scape/Windows_Modules.git
+[submodule "PL_Windows_Proc_Serv/components/Nlohmann_JSON"]
+	path = PL_Windows_Proc_Serv/components/Nlohmann_JSON
+	url = https://github.com/Sense-Scape/Nlohmann_JSON.git

@@ -19,28 +19,30 @@
 #include "HPFModule.h"
 #include "WinUDPTxModule.h"
 
+#include "json.hpp"
+
 int main()
 {
 	// General Config
-	std::string sAudioFilePath = "D:/Recordings_Pond/";
+	std::string sAudioFilePath = "D:/Recordings_bucket/";
 	
 	// ------------
 	// Construction
 	// ------------
 
 	// Start of Processing Chain
-    auto pUDPRXModule = std::make_shared<WinUDPRxModule>("192.168.208.165", "8080", 100, 512);
-	auto pWAVSessionProcModule = std::make_shared<SessionProcModule>(100);
+    auto pUDPRXModule = std::make_shared<WinUDPRxModule>("127.0.0.1", "8080", 100, 512);
+	auto pWAVSessionProcModule = std::make_shared<SessionProcModule>(100);	
 	auto pSessionChunkRouter = std::make_shared<RouterModule>(100);
 	
 	// WAV Processing Chain
 	auto pWAVAccumulatorModule = std::make_shared<WAVAccumulator>(10,100);
-	//auto pWAVHPFModule = std::make_shared<HPFModule>(100,10,8000,5); // Filter bloicking to low atm - need to calculate actual values
+	//auto pWAVHPFModule = std::make_shared<HPFModule>(100,10,8000,5); // Filter blocking to low atm - need to calculate actual values
 	auto pTimeToWAVModule = std::make_shared<TimeToWAVModule>(100);
 	auto pWAVWriterModule = std::make_shared<WAVWriterModule>(sAudioFilePath, 100);
 
 	// UDP Streaming 
-	auto pUDPTXModule = std::make_shared<WinUDPTxModule>("127.0.0.1", "8081", 100, 512);
+	auto pUDPTXModule = std::make_shared<WinUDPTxModule>("127.0.0.1", "8081", 100, 1024);
 
 	// ------------
 	// Connection
@@ -52,7 +54,7 @@ int main()
 	pSessionChunkRouter->SetNextModule(nullptr); // Note: this module needs registered outputs not set outputs as it is a one to many
 	
 	// Registering outputs
-	//pSessionChunkRouter->RegisterOutputModule(pUDPTXModule, ChunkType::TimeChunk);
+	pSessionChunkRouter->RegisterOutputModule(pUDPTXModule, ChunkType::TimeChunk);
 	pSessionChunkRouter->RegisterOutputModule(pTimeToWAVModule, ChunkType::TimeChunk);
 
 	// WAV Chain connections
@@ -62,7 +64,7 @@ int main()
 	pWAVWriterModule->SetNextModule(nullptr); // Note: This is a termination module so has no next module
 	
 	// Streaming connections
-	//pUDPTXModule->SetNextModule(nullptr);
+	pUDPTXModule->SetNextModule(nullptr);
 
 	// ------------
 	// Start-Up
