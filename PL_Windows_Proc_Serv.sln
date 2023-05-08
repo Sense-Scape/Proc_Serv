@@ -6,6 +6,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PL_Windows_Proc_Serv", "PL_Windows_Proc_Serv\PL_Windows_Proc_Serv.vcxproj", "{0B91B512-1F4B-4B83-A1B3-484BCBD27C61}"
 	ProjectSection(ProjectDependencies) = postProject
 		{5583B73C-EB54-4CB6-86E1-439A4B9A9315} = {5583B73C-EB54-4CB6-86E1-439A4B9A9315}
+		{C1EB2978-8DC7-487E-905E-95CF4EA740C5} = {C1EB2978-8DC7-487E-905E-95CF4EA740C5}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BaseModule", "PL_Windows_Proc_Serv\components\Base_Module\BaseModule.vcxproj", "{36FD5345-1EB3-4A92-8F96-A07CC3FA8E32}"
