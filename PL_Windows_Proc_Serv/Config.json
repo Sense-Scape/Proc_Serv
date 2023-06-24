@@ -1,20 +1,19 @@
 {
 	"Config": {
-		"Network": {
-            "UDPRx": {
+		"TCPRxModule": {
                 "IP": "127.0.0.5",
-                "Port": "8080"
-            },
-            "UDPTx": {
+                "Port": "10000"
+		},
+		"UDPTxModule": {
                 "IP": "127.0.0.1",
                 "Port": "8086"
-            }   
 		},
-		"FileSystem":{
+		"WAVAccumulatorModule" : {
+			"RecordingPeriod": 10,
+			"ContinuityThresholdFactor"	: 1
+		},
+		"WAVWriterModule":{
 			"RecordingPath": "D:/Recordings_All/Recordings"
-		},
-		"RecordingParameters" : {
-			"RecordingPeriod": 10			
 		}
 	}
 }

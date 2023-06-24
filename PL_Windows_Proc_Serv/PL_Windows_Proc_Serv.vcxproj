@@ -59,32 +59,48 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="components\Windows_Modules\WinModules.props" />
+    <Import Project="components\Generic_Modules\GenericModules.props" />
+    <Import Project="components\Windows_Modules\components\Base_Module\components\Chunk_Types\ChunkTypes.props" />
+    <Import Project="components\Windows_Modules\components\Base_Module\BaseModule.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="components\Windows_Modules\WinModules.props" />
+    <Import Project="components\Generic_Modules\GenericModules.props" />
+    <Import Project="components\Windows_Modules\components\Base_Module\components\Chunk_Types\ChunkTypes.props" />
+    <Import Project="components\Windows_Modules\components\Base_Module\BaseModule.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="components\Windows_Modules\WinModules.props" />
+    <Import Project="components\Generic_Modules\GenericModules.props" />
+    <Import Project="components\Windows_Modules\components\Base_Module\components\Chunk_Types\ChunkTypes.props" />
+    <Import Project="components\Windows_Modules\components\Base_Module\BaseModule.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="components\Windows_Modules\WinModules.props" />
+    <Import Project="components\Generic_Modules\GenericModules.props" />
+    <Import Project="components\Windows_Modules\components\Base_Module\components\Chunk_Types\ChunkTypes.props" />
+    <Import Project="components\Windows_Modules\components\Base_Module\BaseModule.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)components/Chunk_Types/include;$(ProjectDir)components/Base_Module/include;$(ProjectDir)components/Generic_Modules/include;$(ProjectDir)components/Windows_Modules/include;$(ProjectDir)components/Nlohmann_JSON/include/nlohmann;$(ProjectDir)components/Nlohmann_JSON/include</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)components/Chunk_Types/include;$(ProjectDir)components/Base_Module/include;$(ProjectDir)components/Generic_Modules/include;$(ProjectDir)components/Windows_Modules/include;$(ProjectDir)components/Nlohmann_JSON/include/nlohmann;$(ProjectDir)components/Nlohmann_JSON/include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)components/Chunk_Types/include;$(ProjectDir)components/Base_Module/include;$(ProjectDir)components/Generic_Modules/include;$(ProjectDir)components/Windows_Modules/include;$(ProjectDir)components/Nlohmann_JSON/include/nlohmann;$(ProjectDir)components/Nlohmann_JSON/include</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)components/Chunk_Types/include;$(ProjectDir)components/Base_Module/include;$(ProjectDir)components/Generic_Modules/include;$(ProjectDir)components/Windows_Modules/include;$(ProjectDir)components/Nlohmann_JSON/include/nlohmann;$(ProjectDir)components/Nlohmann_JSON/include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)components/Chunk_Types/include;$(ProjectDir)components/Base_Module/include;$(ProjectDir)components/Generic_Modules/include;$(ProjectDir)components/Windows_Modules/include;$(ProjectDir)components/Nlohmann_JSON/include/nlohmann;$(ProjectDir)components/Nlohmann_JSON/include</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)components/Chunk_Types/include;$(ProjectDir)components/Base_Module/include;$(ProjectDir)components/Generic_Modules/include;$(ProjectDir)components/Windows_Modules/include;$(ProjectDir)components/Nlohmann_JSON/include/nlohmann;$(ProjectDir)components/Nlohmann_JSON/include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)components/Chunk_Types/include;$(ProjectDir)components/Base_Module/include;$(ProjectDir)components/Generic_Modules/include;$(ProjectDir)components/Windows_Modules/include;$(ProjectDir)components/Nlohmann_JSON/include/nlohmann;$(ProjectDir)components/Nlohmann_JSON/include</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)components/Chunk_Types/include;$(ProjectDir)components/Base_Module/include;$(ProjectDir)components/Generic_Modules/include;$(ProjectDir)components/Windows_Modules/include;$(ProjectDir)components/Nlohmann_JSON/include/nlohmann;$(ProjectDir)components/Nlohmann_JSON/include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -92,6 +108,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -107,6 +124,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -122,6 +140,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -137,6 +156,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -162,19 +182,13 @@
     <ProjectReference Include="components\Nlohmann_JSON\Nlohmann_JSON.vcxproj">
       <Project>{c1eb2978-8dc7-487e-905e-95cf4ea740c5}</Project>
     </ProjectReference>
-    <ProjectReference Include="components\Windows_Modules\WinModules.vcxproj">
-      <Project>{2ee8f010-460c-460c-88bc-bd58dda34de2}</Project>
-    </ProjectReference>
-    <ProjectReference Include="PL_Windows_Proc_Serv\components\Base_Module\BaseModule.vcxproj">
+    <ProjectReference Include="components\Windows_Modules\components\Base_Module\BaseModule.vcxproj">
       <Project>{36fd5345-1eb3-4a92-8f96-a07cc3fa8e32}</Project>
     </ProjectReference>
-    <ProjectReference Include="PL_Windows_Proc_Serv\components\Chunk_Types\ChunkTypes.vcxproj">
+    <ProjectReference Include="components\Windows_Modules\components\Base_Module\components\Chunk_Types\ChunkTypes.vcxproj">
       <Project>{5583b73c-eb54-4cb6-86e1-439a4b9a9315}</Project>
     </ProjectReference>
-    <ProjectReference Include="PL_Windows_Proc_Serv\components\Generic_Modules\GenericModules.vcxproj">
-      <Project>{5c33d809-da24-446c-b5cc-980811441d4f}</Project>
-    </ProjectReference>
-    <ProjectReference Include="PL_Windows_Proc_Serv\components\Windows_Modules\WinModules.vcxproj">
+    <ProjectReference Include="components\Windows_Modules\WinModules.vcxproj">
       <Project>{2ee8f010-460c-460c-88bc-bd58dda34de2}</Project>
     </ProjectReference>
   </ItemGroup>

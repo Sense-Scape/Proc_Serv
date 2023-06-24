@@ -19,6 +19,7 @@
 #include "TimeToWAVModule.h"
 #include "HPFModule.h"
 #include "WinUDPTxModule.h"
+#include "WinTCPRxModule.h"
 
 /*External Libraries*/
 #include "json.hpp"
@@ -30,9 +31,9 @@ int main()
 	// Config Variables
 	// ----------------
 
-	// UDP Rx
-	std::string strUDPRxIP;
-	std::string strUDPRxPort;
+	// TCP Rx
+	std::string strTCPRxIP;
+	std::string strTCPRxPort;
 
 	// UDP Rx
 	std::string strUDPTxIP;
@@ -40,6 +41,7 @@ int main()
 	
 	// Other
 	float fAccumulationPeriod_sec;
+	double dContinuityThresholdFactor;
 	std::string strRecordingFilePath;
 
 	try
@@ -50,12 +52,18 @@ int main()
 		nlohmann::json jsonConfig = nlohmann::json::parse(jsonString);
 
 		// Updating config variables 
-		strUDPRxIP = jsonConfig["Config"]["Network"]["UDPRx"]["IP"];
-		strUDPRxPort = jsonConfig["Config"]["Network"]["UDPRx"]["Port"];
-		strUDPTxIP = jsonConfig["Config"]["Network"]["UDPTx"]["IP"];
-		strUDPTxPort = jsonConfig["Config"]["Network"]["UDPTx"]["Port"];
-		strRecordingFilePath = jsonConfig["Config"]["FileSystem"]["RecordingPath"];
-		fAccumulationPeriod_sec = jsonConfig["Config"]["RecordingParameters"]["RecordingPeriod"];
+		// TCP Module Config
+		strTCPRxIP = jsonConfig["Config"]["TCPRxModule"]["IP"];
+		strTCPRxPort = jsonConfig["Config"]["TCPRxModule"]["Port"];
+		// UDP Tx module config
+		strUDPTxIP = jsonConfig["Config"]["UDPTxModule"]["IP"];
+		strUDPTxPort = jsonConfig["Config"]["UDPTxModule"]["Port"];
+		// WAV Accumulator config
+		fAccumulationPeriod_sec = jsonConfig["Config"]["WAVAccumulatorModule"]["RecordingPeriod"];
+		dContinuityThresholdFactor = jsonConfig["Config"]["WAVAccumulatorModule"]["ContinuityThresholdFactor"];
+		// WAV Writer condig
+		strRecordingFilePath = jsonConfig["Config"]["WAVWriterModule"]["RecordingPath"];
+		
 	}
 	catch (const std::exception& e)
 	{
@@ -68,12 +76,13 @@ int main()
 	// ------------
 
 	// Start of Processing Chain
-    auto pUDPRXModule = std::make_shared<WinUDPRxModule>(strUDPRxIP, strUDPRxPort, 100, 512);
+    //auto pUDPRXModule = std::make_shared<WinUDPRxModule>(strUDPRxIP, strUDPRxPort, 100, 512);
+	auto pTCPRXModule = std::make_shared<WinTCPRxModule>(strTCPRxIP, strTCPRxPort, 100, 512);
 	auto pWAVSessionProcModule = std::make_shared<SessionProcModule>(100);	
 	auto pSessionChunkRouter = std::make_shared<RouterModule>(100);
 	
 	// WAV Processing Chain
-	auto pWAVAccumulatorModule = std::make_shared<WAVAccumulator>(fAccumulationPeriod_sec,100);
+	auto pWAVAccumulatorModule = std::make_shared<WAVAccumulator>(fAccumulationPeriod_sec, dContinuityThresholdFactor, 100);
 	//auto pWAVHPFModule = std::make_shared<HPFModule>(100,10,8000,5); // Filter blocking to low atm - need to calculate actual values
 	auto pTimeToWAVModule = std::make_shared<TimeToWAVModule>(100);
 	auto pWAVWriterModule = std::make_shared<WAVWriterModule>(strRecordingFilePath, 100);
@@ -86,7 +95,8 @@ int main()
 	// ------------
 
 	// Connection pipeline modules
-	pUDPRXModule->SetNextModule(pWAVSessionProcModule);
+	//pUDPRXModule->SetNextModule(pWAVSessionProcModule);
+	pTCPRXModule->SetNextModule(pWAVSessionProcModule);
 	pWAVSessionProcModule->SetNextModule(pSessionChunkRouter);
 	pSessionChunkRouter->SetNextModule(nullptr); // Note: this module needs registered outputs not set outputs as it is a one to many
 	
@@ -115,7 +125,8 @@ int main()
 	pWAVAccumulatorModule->StartProcessing();
 	pSessionChunkRouter->StartProcessing();
 	pWAVSessionProcModule->StartProcessing();
-	pUDPRXModule->StartProcessing();
+	//pUDPRXModule->StartProcessing();
+	pTCPRXModule->StartProcessing();
 	
 	while (1)
 	{
