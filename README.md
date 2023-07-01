@@ -1,5 +1,12 @@
-# CPP_Web_Server
+# Windows_Proc_Serv
 
-[Documentation](https://github.com/Sense-Scape/Obsidian_Documentation/tree/main/Sense%20Scape/Sense%20Scape%20Systems/Sound%20Scape)
+## Summary
 
-[Diagrams](https://github.com/Sense-Scape/System_Documentation)
+This is a processing server which sends is designed to recieve data from either the [simulator module](https://github.com/Sense-Scape/Windows_Sensor_Sim/tree/main) or the [ESP32 sensor](https://github.com/Sense-Scape/Acoustic_Sensor_ESP32).
+This module is configured uising the ```Config.json``` file. 
+
+## Getting Started
+
+- Clone this repo using the ```git clone``` command
+- Run ```git submodule update --remote --recursive --init``` to pull in the submodule code
+- Open the solution file in visual studio and build/run it
