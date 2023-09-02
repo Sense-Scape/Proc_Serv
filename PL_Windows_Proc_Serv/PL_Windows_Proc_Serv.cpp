@@ -22,6 +22,8 @@
 #include "WinTCPRxModule.h"
 #include "WinTCPTxModule.h"
 #include "ToJSONModule.h"
+#include "WinTCPTxModule.h"
+#include "ChunkToBytesModule.h"
 
 /*External Libraries*/
 #include "json.hpp"
@@ -86,6 +88,7 @@ int main()
 
 	// To Go Adapter
 	auto pToJSONModule = std::make_shared<ToJSONModule>();
+	auto pChunkToBytesModule = std::make_shared<ChunkToBytesModule>(100, 512);
 	auto pTCPTXModule = std::make_shared<WinTCPTxModule>(strTCPTxIP, strTCPTxPort, 100, 512);
 
 	// ------------
@@ -107,7 +110,8 @@ int main()
 	pWAVWriterModule->SetNextModule(nullptr); // Note: This is a termination module so has no next module
 	
 	// To Go adapter
-	pToJSONModule->SetNextModule(pTCPTXModule);
+	pToJSONModule->SetNextModule(pChunkToBytesModule);
+	pChunkToBytesModule->SetNextModule(pTCPTXModule);
 	pTCPTXModule->SetNextModule(nullptr);
 
 	// ------------
@@ -122,6 +126,7 @@ int main()
 	pWAVSessionProcModule->StartProcessing();
 	pTCPRXModule->StartProcessing();
 	pTCPTXModule->StartProcessing();
+	pChunkToBytesModule->StartProcessing();
 	pToJSONModule->StartProcessing();
 	
 	while (1)
