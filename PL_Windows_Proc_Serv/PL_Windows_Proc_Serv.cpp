@@ -20,6 +20,8 @@
 #include "HPFModule.h"
 #include "WinUDPTxModule.h"
 #include "WinTCPRxModule.h"
+#include "WinTCPTxModule.h"
+#include "ToJSONModule.h"
 
 /*External Libraries*/
 #include "json.hpp"
@@ -35,9 +37,9 @@ int main()
 	std::string strTCPRxIP;
 	std::string strTCPRxPort;
 
-	// UDP Rx
-	std::string strUDPTxIP;
-	std::string strUDPTxPort;
+	// UDP Tx
+	std::string strTCPTxIP = "127.0.0.1";
+	std::string strTCPTxPort = "10005";
 	
 	// Other
 	float fAccumulationPeriod_sec;
@@ -55,9 +57,6 @@ int main()
 		// TCP Module Config
 		strTCPRxIP = jsonConfig["Config"]["TCPRxModule"]["IP"];
 		strTCPRxPort = jsonConfig["Config"]["TCPRxModule"]["Port"];
-		// UDP Tx module config
-		strUDPTxIP = jsonConfig["Config"]["UDPTxModule"]["IP"];
-		strUDPTxPort = jsonConfig["Config"]["UDPTxModule"]["Port"];
 		// WAV Accumulator config
 		fAccumulationPeriod_sec = jsonConfig["Config"]["WAVAccumulatorModule"]["RecordingPeriod"];
 		dContinuityThresholdFactor = jsonConfig["Config"]["WAVAccumulatorModule"]["ContinuityThresholdFactor"];
@@ -85,6 +84,10 @@ int main()
 	auto pTimeToWAVModule = std::make_shared<TimeToWAVModule>(100);
 	auto pWAVWriterModule = std::make_shared<WAVWriterModule>(strRecordingFilePath, 100);
 
+	// To Go Adapter
+	auto pToJSONModule = std::make_shared<ToJSONModule>();
+	auto pTCPTXModule = std::make_shared<WinTCPTxModule>(strTCPTxIP, strTCPTxPort, 100, 512);
+
 	// ------------
 	// Connection
 	// ------------
@@ -96,12 +99,16 @@ int main()
 	
 	// Registering outputs;
 	pSessionChunkRouter->RegisterOutputModule(pTimeToWAVModule, ChunkType::TimeChunk);
+	pSessionChunkRouter->RegisterOutputModule(pToJSONModule, ChunkType::TimeChunk);
 
 	// WAV Chain connections
 	pTimeToWAVModule->SetNextModule(pWAVAccumulatorModule);
 	pWAVAccumulatorModule->SetNextModule(pWAVWriterModule);
 	pWAVWriterModule->SetNextModule(nullptr); // Note: This is a termination module so has no next module
 	
+	// To Go adapter
+	pToJSONModule->SetNextModule(pTCPTXModule);
+	pTCPTXModule->SetNextModule(nullptr);
 
 	// ------------
 	// Start-Up
@@ -114,6 +121,8 @@ int main()
 	pSessionChunkRouter->StartProcessing();
 	pWAVSessionProcModule->StartProcessing();
 	pTCPRXModule->StartProcessing();
+	pTCPTXModule->StartProcessing();
+	pToJSONModule->StartProcessing();
 	
 	while (1)
 	{
