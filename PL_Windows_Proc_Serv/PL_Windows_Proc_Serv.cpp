@@ -26,6 +26,8 @@
 #include "ChunkToBytesModule.h"
 
 /*External Libraries*/
+#include <plog/Appenders/ColorConsoleAppender.h>
+#include <plog/Appenders/RollingFileAppender.h>
 #include "json.hpp"
 
 int main()
@@ -48,7 +50,7 @@ int main()
 	double dContinuityThresholdFactor;
 	std::string strRecordingFilePath;
 
-	try
+	try // To load in config file
 	{	
 		// Reading and parsing JSON config
 		std::ifstream file("./Config.json");
@@ -68,7 +70,26 @@ int main()
 	}
 	catch (const std::exception& e)
 	{
-		std::cout << e.what() << std::endl;
+		PLOG_ERROR << e.what();
+		throw;
+	}
+
+	try // To configure logging
+	{
+		// Logging config
+		time_t lTime;
+		time(&lTime);
+		auto strTime = std::to_string((long long)lTime);
+		std::string strLogFileName = "PL_Windows_Proc_Serv_" + strTime + ".txt";
+
+		static plog::RollingFileAppender<plog::CsvFormatter> fileAppender(strLogFileName.c_str(), 50'000'000, 2); // Create the 1st appender.
+		static plog::ColorConsoleAppender<plog::TxtFormatter> consoleAppender; // Create the 2nd appender.
+		plog::init(plog::debug, &fileAppender).addAppender(&consoleAppender); // Initialize the logger with the both appenders.
+
+	}
+	catch (const std::exception& e)
+	{
+		PLOG_ERROR << e.what();
 		throw;
 	}
 	
