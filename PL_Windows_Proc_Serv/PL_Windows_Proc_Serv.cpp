@@ -33,46 +33,14 @@
 int main()
 {
 
-	// ----------------
-	// Config Variables
-	// ----------------
-
-	// TCP Rx
-	std::string strTCPRxIP;
-	std::string strTCPRxPort;
-
-	// UDP Tx
-	std::string strTCPTxIP = "127.0.0.1";
-	std::string strTCPTxPort = "10005";
-
-	// Other
-	float fAccumulationPeriod_sec;
-	double dContinuityThresholdFactor;
-	std::string strRecordingFilePath;
+	// ---------------------
+	// Logging Configuration
+	// ---------------------
 
 	// Reading and parsing JSON config
 	std::ifstream file("./Config.json");
 	std::string jsonString((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 	nlohmann::json jsonConfig = nlohmann::json::parse(jsonString);
-
-	try // To load in config file
-	{
-		// Updating config variables 
-		// TCP Module Config
-		strTCPRxIP = jsonConfig["PipelineConfig"]["TCPRxModule"]["IP"];
-		strTCPRxPort = jsonConfig["PipelineConfig"]["TCPRxModule"]["Port"];
-		// WAV Accumulator config
-		fAccumulationPeriod_sec = jsonConfig["PipelineConfig"]["WAVAccumulatorModule"]["RecordingPeriod"];
-		dContinuityThresholdFactor = jsonConfig["PipelineConfig"]["WAVAccumulatorModule"]["ContinuityThresholdFactor"];
-		// WAV Writer condig
-		strRecordingFilePath = jsonConfig["PipelineConfig"]["WAVWriterModule"]["RecordingPath"];
-
-	}
-	catch (const std::exception& e)
-	{
-		PLOG_ERROR << e.what();
-		throw;
-	}
 
 	try // To configure logging
 	{
@@ -137,24 +105,67 @@ int main()
 		throw;
 	}
 
+	// -------------------------
+	// Pipeline Config Variables
+	// -------------------------
+
+	// TCP Rx
+	std::string strTCPRxIP;
+	std::string strTCPRxPort;
+
+	// UDP Tx
+	std::string strTCPTxIP;
+	std::string strTCPTxPort;
+
+	// Other
+	float fAccumulationPeriod_sec;
+	double dContinuityThresholdFactor;
+	std::string strRecordingFilePath;
+
+	// Hard coded defaults
+	uint16_t u16DefaultModuleBufferSize = 100;
+	uint16_t u16DefualtNetworkDataTransmissionSize = 512;
+
+	try // To load in config file
+	{
+		// Updating config variables 
+		// TCP Rx Module Config
+		strTCPRxIP = jsonConfig["PipelineConfig"]["TCPRxModule"]["IP"];
+		strTCPRxPort = jsonConfig["PipelineConfig"]["TCPRxModule"]["Port"];
+		// TCP Tx Module Config
+		strTCPTxIP = jsonConfig["PipelineConfig"]["TCPTxModule"]["IP"];
+		strTCPTxPort = jsonConfig["PipelineConfig"]["TCPTxModule"]["IP"];
+		// WAV Accumulator config
+		fAccumulationPeriod_sec = jsonConfig["PipelineConfig"]["WAVAccumulatorModule"]["RecordingPeriod"];
+		dContinuityThresholdFactor = jsonConfig["PipelineConfig"]["WAVAccumulatorModule"]["ContinuityThresholdFactor"];
+		// WAV Writer condig
+		strRecordingFilePath = jsonConfig["PipelineConfig"]["WAVWriterModule"]["RecordingPath"];
+
+	}
+	catch (const std::exception& e)
+	{
+		PLOG_ERROR << e.what();
+		throw;
+	}
+
 	// ------------
 	// Construction
 	// ------------
 
 	// Start of Processing Chain
-	auto pTCPRXModule = std::make_shared<WinTCPRxModule>(strTCPRxIP, strTCPRxPort, 100, 512);
-	auto pWAVSessionProcModule = std::make_shared<SessionProcModule>(100);
-	auto pSessionChunkRouter = std::make_shared<RouterModule>(100);
+	auto pTCPRXModule = std::make_shared<WinTCPRxModule>(strTCPRxIP, strTCPRxPort, u16DefaultModuleBufferSize, u16DefualtNetworkDataTransmissionSize);
+	auto pWAVSessionProcModule = std::make_shared<SessionProcModule>(u16DefaultModuleBufferSize);
+	auto pSessionChunkRouter = std::make_shared<RouterModule>(u16DefaultModuleBufferSize);
 
 	// WAV Processing Chain
-	auto pWAVAccumulatorModule = std::make_shared<WAVAccumulator>(fAccumulationPeriod_sec, dContinuityThresholdFactor, 100);
-	auto pTimeToWAVModule = std::make_shared<TimeToWAVModule>(100);
-	auto pWAVWriterModule = std::make_shared<WAVWriterModule>(strRecordingFilePath, 100);
+	auto pWAVAccumulatorModule = std::make_shared<WAVAccumulator>(fAccumulationPeriod_sec, dContinuityThresholdFactor, u16DefaultModuleBufferSize);
+	auto pTimeToWAVModule = std::make_shared<TimeToWAVModule>(u16DefaultModuleBufferSize);
+	auto pWAVWriterModule = std::make_shared<WAVWriterModule>(strRecordingFilePath, u16DefaultModuleBufferSize);
 
 	// To Go Adapter
 	auto pToJSONModule = std::make_shared<ToJSONModule>();
-	auto pChunkToBytesModule = std::make_shared<ChunkToBytesModule>(100, 512);
-	auto pTCPTXModule = std::make_shared<WinTCPTxModule>(strTCPTxIP, strTCPTxPort, 100, 512);
+	auto pChunkToBytesModule = std::make_shared<ChunkToBytesModule>(u16DefaultModuleBufferSize, u16DefualtNetworkDataTransmissionSize);
+	auto pTCPTXModule = std::make_shared<WinTCPTxModule>(strTCPTxIP, strTCPTxPort, u16DefaultModuleBufferSize, u16DefualtNetworkDataTransmissionSize);
 
 	// ------------
 	// Connection
