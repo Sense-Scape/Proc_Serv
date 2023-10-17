@@ -77,6 +77,8 @@ int main()
 	try // To configure logging
 	{
 		auto eLogLevel = plog::debug;
+
+		// Get log level
 		std::string strRequestLogLevel = jsonConfig["LoggingConfig"]["LoggingLevel"];
 		std::transform(strRequestLogLevel.begin(), strRequestLogLevel.end(), strRequestLogLevel.begin(), [](unsigned char c) {
 			return std::toupper(c);
@@ -94,16 +96,40 @@ int main()
 		else
 			eLogLevel = plog::debug;
 
-		// Get the time for the log file
-		time_t lTime;
-		time(&lTime);
-		auto strTime = std::to_string((long long)lTime);
-		std::string strLogFileName = "PL_Windows_Proc_Serv_" + strTime + ".txt";
-		
-		// And create loggers
-		static plog::RollingFileAppender<plog::CsvFormatter> fileAppender(strLogFileName.c_str(), 50'000'000, 2); // Create the 1st appender.
-		static plog::ColorConsoleAppender<plog::TxtFormatter> consoleAppender; // Create the 2nd appender.
-		plog::init(eLogLevel, &fileAppender).addAppender(&consoleAppender); // Initialize the logger with the both appenders.
+		// And create loggers the after try append to it
+		auto &logger = plog::init(eLogLevel);
+
+		// Check if one should log to files
+		std::string strLogToFile = jsonConfig["LoggingConfig"]["LogToTextFile"];
+		std::transform(strLogToFile.begin(), strLogToFile.end(), strLogToFile.begin(), [](unsigned char c) {
+			return std::toupper(c);
+			});
+
+		if (strLogToFile == "TRUE")
+		{
+			// Get the time for the log file
+			time_t lTime;
+			time(&lTime);
+			auto strTime = std::to_string((long long)lTime);
+			std::string strLogFileName = "PL_Windows_Proc_Serv_" + strTime + ".txt";
+
+			// The create and add the appender
+			static plog::RollingFileAppender<plog::CsvFormatter> fileAppender(strLogFileName.c_str(), 50'000'000, 2);
+			logger.addAppender(&fileAppender);
+		}
+
+		// And to console
+		std::string strLogToConsole = jsonConfig["LoggingConfig"]["LogToConsole"];
+		std::transform(strLogToConsole.begin(), strLogToConsole.end(), strLogToConsole.begin(), [](unsigned char c) {
+			return std::toupper(c);
+			});
+
+		if (strLogToConsole == "TRUE")
+		{
+			static plog::ColorConsoleAppender<plog::TxtFormatter> consoleAppender;
+			logger.addAppender(&consoleAppender);
+		}
+
 	}
 	catch (const std::exception& e)
 	{
