@@ -1,18 +1,21 @@
 {
-	"Config": {
+	"LoggingConfig": {
+		"LoggingLevel": "Info"
+	},
+	"PipelineConfig": {
 		"TCPRxModule": {
-                "IP": "127.0.0.5",
-                "Port": "10000"
+			"IP": "127.0.0.5",
+			"Port": "10000"
 		},
 		"UDPTxModule": {
-                "IP": "127.0.0.1",
-                "Port": "8086"
+			"IP": "127.0.0.1",
+			"Port": "8086"
 		},
-		"WAVAccumulatorModule" : {
+		"WAVAccumulatorModule": {
 			"RecordingPeriod": 10,
-			"ContinuityThresholdFactor"	: 1
+			"ContinuityThresholdFactor": 1
 		},
-		"WAVWriterModule":{
+		"WAVWriterModule": {
 			"RecordingPath": "D:/Recordings_All/Recordings"
 		}
 	}

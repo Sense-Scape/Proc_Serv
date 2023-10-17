@@ -1,4 +1,4 @@
-/*Standard Includes*/
+/* Standard Includes */
 #include <memory>
 #include <vector>
 #include <queue>
@@ -9,7 +9,7 @@
 #include <chrono>
 #include <fstream>
 
-/*Custom Includes*/
+/* Custom Includes */
 #include "BaseModule.h"
 #include "WinUDPRxModule.h"
 #include "SessionProcModule.h"
@@ -25,7 +25,7 @@
 #include "WinTCPTxModule.h"
 #include "ChunkToBytesModule.h"
 
-/*External Libraries*/
+/* External Libraries */
 #include <plog/Appenders/ColorConsoleAppender.h>
 #include <plog/Appenders/RollingFileAppender.h>
 #include "json.hpp"
@@ -44,29 +44,29 @@ int main()
 	// UDP Tx
 	std::string strTCPTxIP = "127.0.0.1";
 	std::string strTCPTxPort = "10005";
-	
+
 	// Other
 	float fAccumulationPeriod_sec;
 	double dContinuityThresholdFactor;
 	std::string strRecordingFilePath;
 
-	try // To load in config file
-	{	
-		// Reading and parsing JSON config
-		std::ifstream file("./Config.json");
-		std::string jsonString((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-		nlohmann::json jsonConfig = nlohmann::json::parse(jsonString);
+	// Reading and parsing JSON config
+	std::ifstream file("./Config.json");
+	std::string jsonString((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+	nlohmann::json jsonConfig = nlohmann::json::parse(jsonString);
 
+	try // To load in config file
+	{
 		// Updating config variables 
 		// TCP Module Config
-		strTCPRxIP = jsonConfig["Config"]["TCPRxModule"]["IP"];
-		strTCPRxPort = jsonConfig["Config"]["TCPRxModule"]["Port"];
+		strTCPRxIP = jsonConfig["PipelineConfig"]["TCPRxModule"]["IP"];
+		strTCPRxPort = jsonConfig["PipelineConfig"]["TCPRxModule"]["Port"];
 		// WAV Accumulator config
-		fAccumulationPeriod_sec = jsonConfig["Config"]["WAVAccumulatorModule"]["RecordingPeriod"];
-		dContinuityThresholdFactor = jsonConfig["Config"]["WAVAccumulatorModule"]["ContinuityThresholdFactor"];
+		fAccumulationPeriod_sec = jsonConfig["PipelineConfig"]["WAVAccumulatorModule"]["RecordingPeriod"];
+		dContinuityThresholdFactor = jsonConfig["PipelineConfig"]["WAVAccumulatorModule"]["ContinuityThresholdFactor"];
 		// WAV Writer condig
-		strRecordingFilePath = jsonConfig["Config"]["WAVWriterModule"]["RecordingPath"];
-		
+		strRecordingFilePath = jsonConfig["PipelineConfig"]["WAVWriterModule"]["RecordingPath"];
+
 	}
 	catch (const std::exception& e)
 	{
@@ -76,32 +76,50 @@ int main()
 
 	try // To configure logging
 	{
-		// Logging config
+		auto eLogLevel = plog::debug;
+		std::string strRequestLogLevel = jsonConfig["LoggingConfig"]["LoggingLevel"];
+		std::transform(strRequestLogLevel.begin(), strRequestLogLevel.end(), strRequestLogLevel.begin(), [](unsigned char c) {
+			return std::toupper(c);
+			});
+
+		// Select log level
+		if (strRequestLogLevel == "DEBUG")
+			eLogLevel = plog::debug;
+		else if (strRequestLogLevel == "INFO")
+			eLogLevel = plog::info;
+		else if (strRequestLogLevel == "WARNING")
+			eLogLevel = plog::warning;
+		if (strRequestLogLevel == "ERROR")
+			eLogLevel = plog::error;
+		else
+			eLogLevel = plog::debug;
+
+		// Get the time for the log file
 		time_t lTime;
 		time(&lTime);
 		auto strTime = std::to_string((long long)lTime);
 		std::string strLogFileName = "PL_Windows_Proc_Serv_" + strTime + ".txt";
-
+		
+		// And create loggers
 		static plog::RollingFileAppender<plog::CsvFormatter> fileAppender(strLogFileName.c_str(), 50'000'000, 2); // Create the 1st appender.
 		static plog::ColorConsoleAppender<plog::TxtFormatter> consoleAppender; // Create the 2nd appender.
-		plog::init(plog::debug, &fileAppender).addAppender(&consoleAppender); // Initialize the logger with the both appenders.
-
+		plog::init(eLogLevel, &fileAppender).addAppender(&consoleAppender); // Initialize the logger with the both appenders.
 	}
 	catch (const std::exception& e)
 	{
 		PLOG_ERROR << e.what();
 		throw;
 	}
-	
+
 	// ------------
 	// Construction
 	// ------------
 
 	// Start of Processing Chain
 	auto pTCPRXModule = std::make_shared<WinTCPRxModule>(strTCPRxIP, strTCPRxPort, 100, 512);
-	auto pWAVSessionProcModule = std::make_shared<SessionProcModule>(100);	
+	auto pWAVSessionProcModule = std::make_shared<SessionProcModule>(100);
 	auto pSessionChunkRouter = std::make_shared<RouterModule>(100);
-	
+
 	// WAV Processing Chain
 	auto pWAVAccumulatorModule = std::make_shared<WAVAccumulator>(fAccumulationPeriod_sec, dContinuityThresholdFactor, 100);
 	auto pTimeToWAVModule = std::make_shared<TimeToWAVModule>(100);
@@ -120,7 +138,7 @@ int main()
 	pTCPRXModule->SetNextModule(pWAVSessionProcModule);
 	pWAVSessionProcModule->SetNextModule(pSessionChunkRouter);
 	pSessionChunkRouter->SetNextModule(nullptr); // Note: this module needs registered outputs not set outputs as it is a one to many
-	
+
 	// Registering outputs;
 	pSessionChunkRouter->RegisterOutputModule(pTimeToWAVModule, ChunkType::TimeChunk);
 	pSessionChunkRouter->RegisterOutputModule(pToJSONModule, ChunkType::TimeChunk);
@@ -129,7 +147,7 @@ int main()
 	pTimeToWAVModule->SetNextModule(pWAVAccumulatorModule);
 	pWAVAccumulatorModule->SetNextModule(pWAVWriterModule);
 	pWAVWriterModule->SetNextModule(nullptr); // Note: This is a termination module so has no next module
-	
+
 	// To Go adapter
 	pToJSONModule->SetNextModule(pChunkToBytesModule);
 	pChunkToBytesModule->SetNextModule(pTCPTXModule);
@@ -149,7 +167,7 @@ int main()
 	pTCPTXModule->StartProcessing();
 	pChunkToBytesModule->StartProcessing();
 	pToJSONModule->StartProcessing();
-	
+
 	while (1)
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
