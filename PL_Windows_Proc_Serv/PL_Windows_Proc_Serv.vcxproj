@@ -63,6 +63,7 @@
     <Import Project="components\Generic_Modules\GenericModules.props" />
     <Import Project="components\Windows_Modules\components\Base_Module\components\Chunk_Types\ChunkTypes.props" />
     <Import Project="components\Windows_Modules\components\Base_Module\BaseModule.props" />
+    <Import Project="components\Generic_Modules\components\Base_Module\components\plog\plog.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -70,6 +71,7 @@
     <Import Project="components\Generic_Modules\GenericModules.props" />
     <Import Project="components\Windows_Modules\components\Base_Module\components\Chunk_Types\ChunkTypes.props" />
     <Import Project="components\Windows_Modules\components\Base_Module\BaseModule.props" />
+    <Import Project="components\Generic_Modules\components\Base_Module\components\plog\plog.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -77,6 +79,7 @@
     <Import Project="components\Generic_Modules\GenericModules.props" />
     <Import Project="components\Windows_Modules\components\Base_Module\components\Chunk_Types\ChunkTypes.props" />
     <Import Project="components\Windows_Modules\components\Base_Module\BaseModule.props" />
+    <Import Project="components\Generic_Modules\components\Base_Module\components\plog\plog.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -84,6 +87,7 @@
     <Import Project="components\Generic_Modules\GenericModules.props" />
     <Import Project="components\Windows_Modules\components\Base_Module\components\Chunk_Types\ChunkTypes.props" />
     <Import Project="components\Windows_Modules\components\Base_Module\BaseModule.props" />
+    <Import Project="components\Generic_Modules\components\Base_Module\components\plog\plog.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
