@@ -7,10 +7,10 @@
 	"PipelineConfig": {
 		"TCPTxModule": {
 			"IP": "127.0.0.1",
-			"Port": "10005"
+			"Port": "10010"
 		},
 		"TCPRxModule": {
-			"IP": "127.0.0.5",
+			"IP": "127.0.0.1",
 			"Port": "10000"
 		},
 		"UDPTxModule": {
