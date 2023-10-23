@@ -14,15 +14,16 @@ This module is configured uising the ```Config.json``` file.
 
 ## Block Diagram
 
-```mermaid
-graph TD;
-    TCPRxModule-->SessionProcModule;
-    SessionProcModule-->RouterModule;
-
-    RouterModule-->TimeToWAVModule;
-    TimeToWAVModule-->WAVAccumulatorModule;
-    WAVAccumulatorModule-->WAVWriterModule;
-
-    RouterModule-->ChunkToBytesModule;
-    ChunkToBytesModule-->TCPTXModule
+``` mermaid 
+graph TD; 
+  pTCPRXModule-->pWAVSessionProcModule
+  pWAVSessionProcModule-->pSessionChunkRouter
+  pFFTProcModule-->pToJSONModule
+  pTimeToWAVModule-->pWAVAccumulatorModule
+  pWAVAccumulatorModule-->pWAVWriterModule
+  pToJSONModule-->pChunkToBytesModule
+  pChunkToBytesModule-->pTCPTXModule
+  pSessionChunkRouter-->pTimeToWAVModule
+  pSessionChunkRouter-->pToJSONModule
+  pSessionChunkRouter-->pFFTProcModule
 ```
