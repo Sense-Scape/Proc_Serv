@@ -24,6 +24,7 @@
 #include "ToJSONModule.h"
 #include "WinTCPTxModule.h"
 #include "ChunkToBytesModule.h"
+#include "FFTModule.h"
 
 /* External Libraries */
 #include <plog/Appenders/ColorConsoleAppender.h>
@@ -162,6 +163,9 @@ int main()
 	auto pTimeToWAVModule = std::make_shared<TimeToWAVModule>(u16DefaultModuleBufferSize);
 	auto pWAVWriterModule = std::make_shared<WAVWriterModule>(strRecordingFilePath, u16DefaultModuleBufferSize);
 
+	// FFT proc
+	auto pFFTProcModule= std::make_shared<FFTModule>(u16DefaultModuleBufferSize);
+	
 	// To Go Adapter
 	auto pToJSONModule = std::make_shared<ToJSONModule>();
 	auto pChunkToBytesModule = std::make_shared<ChunkToBytesModule>(u16DefaultModuleBufferSize, u16DefualtNetworkDataTransmissionSize);
@@ -179,6 +183,10 @@ int main()
 	// Registering outputs;
 	pSessionChunkRouter->RegisterOutputModule(pTimeToWAVModule, ChunkType::TimeChunk);
 	pSessionChunkRouter->RegisterOutputModule(pToJSONModule, ChunkType::TimeChunk);
+	pSessionChunkRouter->RegisterOutputModule(pFFTProcModule, ChunkType::TimeChunk);
+
+	//FFT Proc Chain
+	pFFTProcModule->SetNextModule(pToJSONModule);
 
 	// WAV Chain connections
 	pTimeToWAVModule->SetNextModule(pWAVAccumulatorModule);
@@ -204,6 +212,7 @@ int main()
 	pTCPTXModule->StartProcessing();
 	pChunkToBytesModule->StartProcessing();
 	pToJSONModule->StartProcessing();
+	pFFTProcModule->StartProcessing();
 
 	while (1)
 	{

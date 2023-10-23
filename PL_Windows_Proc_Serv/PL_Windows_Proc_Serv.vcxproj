@@ -64,6 +64,7 @@
     <Import Project="components\Windows_Modules\components\Base_Module\components\Chunk_Types\ChunkTypes.props" />
     <Import Project="components\Windows_Modules\components\Base_Module\BaseModule.props" />
     <Import Project="components\Generic_Modules\components\Base_Module\components\plog\plog.props" />
+    <Import Project="components\Generic_Modules\components\kissfft\KissFFT.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -72,6 +73,7 @@
     <Import Project="components\Windows_Modules\components\Base_Module\components\Chunk_Types\ChunkTypes.props" />
     <Import Project="components\Windows_Modules\components\Base_Module\BaseModule.props" />
     <Import Project="components\Generic_Modules\components\Base_Module\components\plog\plog.props" />
+    <Import Project="components\Generic_Modules\components\kissfft\KissFFT.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -80,6 +82,7 @@
     <Import Project="components\Windows_Modules\components\Base_Module\components\Chunk_Types\ChunkTypes.props" />
     <Import Project="components\Windows_Modules\components\Base_Module\BaseModule.props" />
     <Import Project="components\Generic_Modules\components\Base_Module\components\plog\plog.props" />
+    <Import Project="components\Generic_Modules\components\kissfft\KissFFT.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -88,6 +91,7 @@
     <Import Project="components\Windows_Modules\components\Base_Module\components\Chunk_Types\ChunkTypes.props" />
     <Import Project="components\Windows_Modules\components\Base_Module\BaseModule.props" />
     <Import Project="components\Generic_Modules\components\Base_Module\components\plog\plog.props" />
+    <Import Project="components\Generic_Modules\components\kissfft\KissFFT.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -179,6 +183,9 @@
     </ProjectReference>
     <ProjectReference Include="components\Chunk_Types\ChunkTypes.vcxproj">
       <Project>{5583b73c-eb54-4cb6-86e1-439a4b9a9315}</Project>
+    </ProjectReference>
+    <ProjectReference Include="components\Generic_Modules\components\kissfft\kissfft.vcxproj">
+      <Project>{2dd1b9c9-929b-427d-95e5-8d749921e040}</Project>
     </ProjectReference>
     <ProjectReference Include="components\Generic_Modules\GenericModules.vcxproj">
       <Project>{5c33d809-da24-446c-b5cc-980811441d4f}</Project>
