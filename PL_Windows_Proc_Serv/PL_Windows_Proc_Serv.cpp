@@ -134,7 +134,7 @@ int main()
 		strTCPRxPort = jsonConfig["PipelineConfig"]["TCPRxModule"]["Port"];
 		// TCP Tx Module Config
 		strTCPTxIP = jsonConfig["PipelineConfig"]["TCPTxModule"]["IP"];
-		strTCPTxPort = jsonConfig["PipelineConfig"]["TCPTxModule"]["IP"];
+		strTCPTxPort = jsonConfig["PipelineConfig"]["TCPTxModule"]["Port"];
 		// WAV Accumulator config
 		fAccumulationPeriod_sec = jsonConfig["PipelineConfig"]["WAVAccumulatorModule"]["RecordingPeriod"];
 		dContinuityThresholdFactor = jsonConfig["PipelineConfig"]["WAVAccumulatorModule"]["ContinuityThresholdFactor"];
