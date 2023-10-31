@@ -19,11 +19,11 @@ graph TD;
   pTCPRXModule-->pWAVSessionProcModule
   pWAVSessionProcModule-->pSessionChunkRouter
   pFFTProcModule-->pToJSONModule
-  pTimeToWAVModule-->pWAVAccumulatorModule
-  pWAVAccumulatorModule-->pWAVWriterModule
   pToJSONModule-->pChunkToBytesModule
   pChunkToBytesModule-->pTCPTXModule
-  pSessionChunkRouter-->pTimeToWAVModule
-  pSessionChunkRouter-->pToJSONModule
-  pSessionChunkRouter-->pFFTProcModule
+  	pTimeToWAVModule-->pWAVAccumulatorModule
+  	pWAVAccumulatorModule-->pWAVWriterModule
+  pSessionChunkRouter-- TimeChunk -->pToJSONModule
+  pSessionChunkRouter-- TimeChunk -->pFFTProcModule
+  	pSessionChunkRouter-- TimeChunk -->pTimeToWAVModule
 ```
