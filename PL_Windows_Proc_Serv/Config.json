@@ -17,12 +17,16 @@
 			"IP": "127.0.0.1",
 			"Port": "8086"
 		},
-		"WAVAccumulatorModule": {
-			"RecordingPeriod": 10,
-			"ContinuityThresholdFactor": 1
-		},
-		"WAVWriterModule": {
-			"RecordingPath": "D:/Recordings_All/Recordings"
+		"WAVSubPipelineConfig": {
+			"EnableSubPipeline": "True",
+			"WAVAccumulatorModule": {
+				"RecordingPeriod": 10,
+				"ContinuityThresholdFactor": 1
+			},
+			"WAVWriterModule": {
+				"RecordData": "False",
+				"RecordingPath": "D:/Recordings_All/Recordings"
+			}
 		}
 	}
 }

@@ -118,7 +118,8 @@ int main()
 	std::string strTCPTxIP;
 	std::string strTCPTxPort;
 
-	// Other
+	// WAV Sub Pipeline
+	bool bEnableWAVSubPipeline;
 	float fAccumulationPeriod_sec;
 	double dContinuityThresholdFactor;
 	std::string strRecordingFilePath;
@@ -136,11 +137,17 @@ int main()
 		// TCP Tx Module Config
 		strTCPTxIP = jsonConfig["PipelineConfig"]["TCPTxModule"]["IP"];
 		strTCPTxPort = jsonConfig["PipelineConfig"]["TCPTxModule"]["Port"];
+
 		// WAV Accumulator config
-		fAccumulationPeriod_sec = jsonConfig["PipelineConfig"]["WAVAccumulatorModule"]["RecordingPeriod"];
-		dContinuityThresholdFactor = jsonConfig["PipelineConfig"]["WAVAccumulatorModule"]["ContinuityThresholdFactor"];
-		// WAV Writer condig
-		strRecordingFilePath = jsonConfig["PipelineConfig"]["WAVWriterModule"]["RecordingPath"];
+		std::string strEnableWAVSubPipeline = jsonConfig["PipelineConfig"]["WAVSubPipelineConfig"]["EnableSubPipeline"];
+		std::transform(strEnableWAVSubPipeline.begin(), strEnableWAVSubPipeline.end(), strEnableWAVSubPipeline.begin(), [](unsigned char c) {
+		return std::toupper(c);
+			});
+
+		bEnableWAVSubPipeline = (strEnableWAVSubPipeline == "TRUE");
+		fAccumulationPeriod_sec = jsonConfig["PipelineConfig"]["WAVSubPipelineConfig"]["WAVAccumulatorModule"]["RecordingPeriod"];
+		dContinuityThresholdFactor = jsonConfig["PipelineConfig"]["WAVSubPipelineConfig"]["WAVAccumulatorModule"]["ContinuityThresholdFactor"];
+		strRecordingFilePath = jsonConfig["PipelineConfig"]["WAVSubPipelineConfig"]["WAVWriterModule"]["RecordingPath"];
 
 	}
 	catch (const std::exception& e)
@@ -157,11 +164,6 @@ int main()
 	auto pTCPRXModule = std::make_shared<WinTCPRxModule>(strTCPRxIP, strTCPRxPort, u16DefaultModuleBufferSize, u16DefualtNetworkDataTransmissionSize);
 	auto pWAVSessionProcModule = std::make_shared<SessionProcModule>(u16DefaultModuleBufferSize);
 	auto pSessionChunkRouter = std::make_shared<RouterModule>(u16DefaultModuleBufferSize);
-
-	// WAV Processing Chain
-	auto pWAVAccumulatorModule = std::make_shared<WAVAccumulator>(fAccumulationPeriod_sec, dContinuityThresholdFactor, u16DefaultModuleBufferSize);
-	auto pTimeToWAVModule = std::make_shared<TimeToWAVModule>(u16DefaultModuleBufferSize);
-	auto pWAVWriterModule = std::make_shared<WAVWriterModule>(strRecordingFilePath, u16DefaultModuleBufferSize);
 
 	// FFT proc
 	auto pFFTProcModule= std::make_shared<FFTModule>(u16DefaultModuleBufferSize);
@@ -180,32 +182,54 @@ int main()
 	pWAVSessionProcModule->SetNextModule(pSessionChunkRouter);
 	pSessionChunkRouter->SetNextModule(nullptr); // Note: this module needs registered outputs not set outputs as it is a one to many
 
-	// Registering outputs;
-	pSessionChunkRouter->RegisterOutputModule(pTimeToWAVModule, ChunkType::TimeChunk);
 	pSessionChunkRouter->RegisterOutputModule(pToJSONModule, ChunkType::TimeChunk);
 	pSessionChunkRouter->RegisterOutputModule(pFFTProcModule, ChunkType::TimeChunk);
 
 	//FFT Proc Chain
 	pFFTProcModule->SetNextModule(pToJSONModule);
 
-	// WAV Chain connections
-	pTimeToWAVModule->SetNextModule(pWAVAccumulatorModule);
-	pWAVAccumulatorModule->SetNextModule(pWAVWriterModule);
-	pWAVWriterModule->SetNextModule(nullptr); // Note: This is a termination module so has no next module
+	
 
 	// To Go adapter
 	pToJSONModule->SetNextModule(pChunkToBytesModule);
 	pChunkToBytesModule->SetNextModule(pTCPTXModule);
 	pTCPTXModule->SetNextModule(nullptr);
 
+	
+	
+	// Constructing WAV Subpipeline
+	std::shared_ptr<WAVAccumulator> pWAVAccumulatorModule;
+	std::shared_ptr<TimeToWAVModule> pTimeToWAVModule;
+	std::shared_ptr<WAVWriterModule> pWAVWriterModule;
+
+	if (bEnableWAVSubPipeline)
+	{
+		std::string strInfo = std::string(__FUNCTION__) + " Constructing WAV sub pipeline";
+		PLOG_INFO << strInfo;
+
+		// WAV Processing Chain
+		pWAVAccumulatorModule = std::make_shared<WAVAccumulator>(fAccumulationPeriod_sec, dContinuityThresholdFactor, u16DefaultModuleBufferSize);
+		pTimeToWAVModule = std::make_shared<TimeToWAVModule>(u16DefaultModuleBufferSize);
+		pWAVWriterModule = std::make_shared<WAVWriterModule>(strRecordingFilePath, u16DefaultModuleBufferSize);
+
+		// WAV Chain connections
+		pSessionChunkRouter->RegisterOutputModule(pTimeToWAVModule, ChunkType::TimeChunk);
+		pTimeToWAVModule->SetNextModule(pWAVAccumulatorModule);
+		pWAVAccumulatorModule->SetNextModule(pWAVWriterModule);
+		pWAVWriterModule->SetNextModule(nullptr); // Note: This is a termination module so has no next module
+
+		// Starting WAV Chain
+		pWAVWriterModule->StartProcessing();
+		pTimeToWAVModule->StartProcessing();
+		pWAVAccumulatorModule->StartProcessing();
+	}
+	
+
 	// ------------
 	// Start-Up
 	// ------------
 
 	// Starting chain from its end to start
-	pWAVWriterModule->StartProcessing();
-	pTimeToWAVModule->StartProcessing();
-	pWAVAccumulatorModule->StartProcessing();
 	pSessionChunkRouter->StartProcessing();
 	pWAVSessionProcModule->StartProcessing();
 	pTCPRXModule->StartProcessing();
