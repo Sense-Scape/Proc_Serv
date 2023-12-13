@@ -25,6 +25,7 @@
 #include "WinTCPTxModule.h"
 #include "ChunkToBytesModule.h"
 #include "FFTModule.h"
+#include "WinMultiClientTCPRxModule.h"
 
 /* External Libraries */
 #include <plog/Appenders/ColorConsoleAppender.h>
@@ -161,7 +162,7 @@ int main()
 	// ------------
 
 	// Start of Processing Chain
-	auto pTCPRXModule = std::make_shared<WinTCPRxModule>(strTCPRxIP, strTCPRxPort, u16DefaultModuleBufferSize, u16DefualtNetworkDataTransmissionSize);
+	auto pTCPRXModule = std::make_shared<WinMultiClientTCPRxModule>(strTCPRxIP, strTCPRxPort, u16DefaultModuleBufferSize, u16DefualtNetworkDataTransmissionSize);
 	auto pWAVSessionProcModule = std::make_shared<SessionProcModule>(u16DefaultModuleBufferSize);
 	auto pSessionChunkRouter = std::make_shared<RouterModule>(u16DefaultModuleBufferSize);
 
@@ -187,7 +188,7 @@ int main()
 
 	//FFT Proc Chain
 	pFFTProcModule->SetNextModule(pToJSONModule);
-
+	pFFTProcModule->SetGenerateMagnitudeData(true);
 	
 
 	// To Go adapter
