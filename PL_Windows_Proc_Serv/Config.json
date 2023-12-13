@@ -18,7 +18,7 @@
 			"Port": "8086"
 		},
 		"WAVSubPipelineConfig": {
-			"EnableSubPipeline": "True",
+			"EnableSubPipeline": "False",
 			"WAVAccumulatorModule": {
 				"RecordingPeriod": 10,
 				"ContinuityThresholdFactor": 1

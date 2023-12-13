@@ -25,6 +25,7 @@
 #include "WinTCPTxModule.h"
 #include "ChunkToBytesModule.h"
 #include "FFTModule.h"
+#include "WinMultiClientTCPRxModule.h"
 
 /* External Libraries */
 #include <plog/Appenders/ColorConsoleAppender.h>
@@ -161,13 +162,14 @@ int main()
 	// ------------
 
 	// Start of Processing Chain
-	auto pTCPRXModule = std::make_shared<WinTCPRxModule>(strTCPRxIP, strTCPRxPort, u16DefaultModuleBufferSize, u16DefualtNetworkDataTransmissionSize);
+	auto pMultiClientTCPRXModule = std::make_shared<WinMultiClientTCPRxModule>(strTCPRxIP, strTCPRxPort, u16DefaultModuleBufferSize, u16DefualtNetworkDataTransmissionSize);
 	auto pWAVSessionProcModule = std::make_shared<SessionProcModule>(u16DefaultModuleBufferSize);
 	auto pSessionChunkRouter = std::make_shared<RouterModule>(u16DefaultModuleBufferSize);
 
 	// FFT proc
 	auto pFFTProcModule= std::make_shared<FFTModule>(u16DefaultModuleBufferSize);
-	
+	pFFTProcModule->SetGenerateMagnitudeData(true);
+
 	// To Go Adapter
 	auto pToJSONModule = std::make_shared<ToJSONModule>();
 	auto pChunkToBytesModule = std::make_shared<ChunkToBytesModule>(u16DefaultModuleBufferSize, u16DefualtNetworkDataTransmissionSize);
@@ -178,7 +180,7 @@ int main()
 	// ------------
 
 	// Connection pipeline modules
-	pTCPRXModule->SetNextModule(pWAVSessionProcModule);
+	pMultiClientTCPRXModule->SetNextModule(pWAVSessionProcModule);
 	pWAVSessionProcModule->SetNextModule(pSessionChunkRouter);
 	pSessionChunkRouter->SetNextModule(nullptr); // Note: this module needs registered outputs not set outputs as it is a one to many
 
@@ -232,7 +234,7 @@ int main()
 	// Starting chain from its end to start
 	pSessionChunkRouter->StartProcessing();
 	pWAVSessionProcModule->StartProcessing();
-	pTCPRXModule->StartProcessing();
+	pMultiClientTCPRXModule->StartProcessing();
 	pTCPTXModule->StartProcessing();
 	pChunkToBytesModule->StartProcessing();
 	pToJSONModule->StartProcessing();
