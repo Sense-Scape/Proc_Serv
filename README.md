@@ -16,7 +16,7 @@ This module is configured uising the ```Config.json``` file.
 
 ``` mermaid 
 graph TD; 
-  pTCPRXModule-->pWAVSessionProcModule
+  pMultiClientTCPRXModule-->pWAVSessionProcModule
   pWAVSessionProcModule-->pSessionChunkRouter
   pFFTProcModule-->pToJSONModule
   pToJSONModule-->pChunkToBytesModule
