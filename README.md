@@ -7,6 +7,14 @@ This module is configured uising the ```Config.json``` file.
 
 ## Getting Started
 
+### The Easy Way
+
+- Download a release from this repository
+- Configure the `Config.json` file
+- Run the simulator
+
+### The Not So Easy Way
+
 - run `git config --system core.longpaths true`
 - Clone this repo using the ```git clone``` command
 - Run ```git submodule update --remote --recursive --init``` to pull in the submodule code
