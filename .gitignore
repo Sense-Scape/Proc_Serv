@@ -2,6 +2,7 @@
 .vs/
 
 # Build directories to ignore
+build/
 Debug/
 Release/
 x64/
