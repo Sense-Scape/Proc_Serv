@@ -1,0 +1,20 @@
+name: C++ Build on Linux
+
+on: [push]
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:    
+
+    - name: Checkout project and submodules
+      uses: actions/checkout@v3
+      with:
+        submodules: recursive
+
+    - name: Generate
+      run: cmake -B build
+
+    - name: Build
+      run: make -C build
