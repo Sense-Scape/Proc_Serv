@@ -13,11 +13,10 @@ set(CMAKE_CXX_STANDARD 20)
 # Main executable
 file(GLOB SOURCES "*.cpp")
 add_library(GenericModuleLib ${SOURCES})
-add_library(GenericModuleLib ${SOURCES})
 
 # Test executable
-add_executable(GenericModuleTests
-    ${SOURCE_TESTS_DIR}/GenericModulesTests.cpp
+add_executable(ProccServ
+    ${SOURCE_TESTS_DIR}/ProcServ.cpp
 )
 
 if(NOT TARGET BaseModuleLib)
@@ -40,9 +39,3 @@ target_include_directories(GenericModuleLib
 
 # Library A which need B shall be listed before B
 target_link_libraries(GenericModuleTests PRIVATE BaseModuleLib GenericModuleLib ChunkTypesLib kissfft::kissfft)
-
-# Enable testing
-enable_testing()
-
-# Add tests to CTest
-add_test(NAME GenericModuleTests COMMAND GenericModuleTests)
