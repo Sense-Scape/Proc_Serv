@@ -1,9 +1,6 @@
 [submodule "PL_Windows_Proc_Serv/components/Generic_Modules"]
 	path = Processing_Server/components/Generic_Modules
 	url = https://github.com/Sense-Scape/Generic_Modules.git
-[submodule "PL_Windows_Proc_Serv/components/Windows_Modules"]
-	path = Processing_Server/components/Windows_Modules
-	url = https://github.com/Sense-Scape/Windows_Modules.git
 [submodule "Processing_Server/components/Linux_Modules"]
 	path = Processing_Server/components/Linux_Modules
 	url = https://github.com/Sense-Scape/Linux_Modules.git

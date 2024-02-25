@@ -43,9 +43,8 @@ int main()
 
 		// Get log level
 		std::string strRequestLogLevel = jsonConfig["LoggingConfig"]["LoggingLevel"];
-		std::transform(strRequestLogLevel.begin(), strRequestLogLevel.end(), strRequestLogLevel.begin(), [](unsigned char c) {
-			return std::toupper(c);
-			});
+		std::transform(strRequestLogLevel.begin(), strRequestLogLevel.end(), strRequestLogLevel.begin(), [](unsigned char c)
+					   { return std::toupper(c); });
 
 		// Select log level
 		if (strRequestLogLevel == "DEBUG")
@@ -64,9 +63,8 @@ int main()
 
 		// Check if one should log to files
 		std::string strLogToFile = jsonConfig["LoggingConfig"]["LogToTextFile"];
-		std::transform(strLogToFile.begin(), strLogToFile.end(), strLogToFile.begin(), [](unsigned char c) {
-			return std::toupper(c);
-			});
+		std::transform(strLogToFile.begin(), strLogToFile.end(), strLogToFile.begin(), [](unsigned char c)
+					   { return std::toupper(c); });
 
 		if (strLogToFile == "TRUE")
 		{
@@ -83,18 +81,16 @@ int main()
 
 		// And to console
 		std::string strLogToConsole = jsonConfig["LoggingConfig"]["LogToConsole"];
-		std::transform(strLogToConsole.begin(), strLogToConsole.end(), strLogToConsole.begin(), [](unsigned char c) {
-			return std::toupper(c);
-			});
+		std::transform(strLogToConsole.begin(), strLogToConsole.end(), strLogToConsole.begin(), [](unsigned char c)
+					   { return std::toupper(c); });
 
 		if (strLogToConsole == "TRUE")
 		{
 			static plog::ColorConsoleAppender<plog::TxtFormatter> consoleAppender;
 			logger.addAppender(&consoleAppender);
 		}
-
 	}
-	catch (const std::exception& e)
+	catch (const std::exception &e)
 	{
 		PLOG_ERROR << e.what();
 		throw;
@@ -124,7 +120,7 @@ int main()
 
 	try // To load in config file
 	{
-		// Updating config variables 
+		// Updating config variables
 		// TCP Rx Module Config
 		strTCPRxIP = jsonConfig["PipelineConfig"]["TCPRxModule"]["IP"];
 		strTCPRxPort = jsonConfig["PipelineConfig"]["TCPRxModule"]["Port"];
@@ -134,17 +130,15 @@ int main()
 
 		// WAV Accumulator config
 		std::string strEnableWAVSubPipeline = jsonConfig["PipelineConfig"]["WAVSubPipelineConfig"]["EnableSubPipeline"];
-		std::transform(strEnableWAVSubPipeline.begin(), strEnableWAVSubPipeline.end(), strEnableWAVSubPipeline.begin(), [](unsigned char c) {
-		return std::toupper(c);
-			});
+		std::transform(strEnableWAVSubPipeline.begin(), strEnableWAVSubPipeline.end(), strEnableWAVSubPipeline.begin(), [](unsigned char c)
+					   { return std::toupper(c); });
 
 		bEnableWAVSubPipeline = (strEnableWAVSubPipeline == "TRUE");
 		fAccumulationPeriod_sec = jsonConfig["PipelineConfig"]["WAVSubPipelineConfig"]["WAVAccumulatorModule"]["RecordingPeriod"];
 		dContinuityThresholdFactor = jsonConfig["PipelineConfig"]["WAVSubPipelineConfig"]["WAVAccumulatorModule"]["ContinuityThresholdFactor"];
 		strRecordingFilePath = jsonConfig["PipelineConfig"]["WAVSubPipelineConfig"]["WAVWriterModule"]["RecordingPath"];
-
 	}
-	catch (const std::exception& e)
+	catch (const std::exception &e)
 	{
 		PLOG_ERROR << e.what();
 		throw;
@@ -156,15 +150,15 @@ int main()
 
 	// // Start of Processing Chain
 
-	// auto pWAVSessionProcModule = std::make_shared<SessionProcModule>(u16DefaultModuleBufferSize);
-	// auto pSessionChunkRouter = std::make_shared<RouterModule>(u16DefaultModuleBufferSize);
+	auto pWAVSessionProcModule = std::make_shared<SessionProcModule>(u16DefaultModuleBufferSize);
+	auto pSessionChunkRouter = std::make_shared<RouterModule>(u16DefaultModuleBufferSize);
 
 	// // FFT proc
-	// auto pFFTProcModule= std::make_shared<FFTModule>(u16DefaultModuleBufferSize);
-	
+	auto pFFTProcModule = std::make_shared<FFTModule>(u16DefaultModuleBufferSize);
+
 	// // To Go Adapter
-	// auto pToJSONModule = std::make_shared<ToJSONModule>();
-	// auto pChunkToBytesModule = std::make_shared<ChunkToBytesModule>(u16DefaultModuleBufferSize, u16DefualtNetworkDataTransmissionSize);
+	auto pToJSONModule = std::make_shared<ToJSONModule>();
+	auto pChunkToBytesModule = std::make_shared<ChunkToBytesModule>(u16DefaultModuleBufferSize, u16DefualtNetworkDataTransmissionSize);
 	// auto pTCPTXModule = std::make_shared<WinTCPTxModule>(strTCPTxIP, strTCPTxPort, u16DefaultModuleBufferSize, u16DefualtNetworkDataTransmissionSize);
 
 	// // ------------
@@ -182,15 +176,12 @@ int main()
 	// //FFT Proc Chain
 	// pFFTProcModule->SetNextModule(pToJSONModule);
 	// pFFTProcModule->SetGenerateMagnitudeData(true);
-	
 
 	// // To Go adapter
 	// pToJSONModule->SetNextModule(pChunkToBytesModule);
 	// pChunkToBytesModule->SetNextModule(pTCPTXModule);
 	// pTCPTXModule->SetNextModule(nullptr);
 
-	
-	
 	// // Constructing WAV Subpipeline
 	// std::shared_ptr<WAVAccumulator> pWAVAccumulatorModule;
 	// std::shared_ptr<TimeToWAVModule> pTimeToWAVModule;
@@ -217,7 +208,6 @@ int main()
 	// 	pTimeToWAVModule->StartProcessing();
 	// 	pWAVAccumulatorModule->StartProcessing();
 	// }
-	
 
 	// // ------------
 	// // Start-Up
