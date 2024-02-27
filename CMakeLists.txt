@@ -34,4 +34,4 @@ target_include_directories(Processing_Server
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Processing_Server/components/Generic_Modules/components/kissfft
 )
 
-target_link_libraries(Processing_Server PRIVATE GenericModuleLib LinuxModulesLib BaseModuleLib ChunkTypesLib kissfft::kissfft ${ALSA_LIBRARY})
+target_link_libraries(Processing_Server PRIVATE GenericModuleLib LinuxModulesLib BaseModuleLib ChunkTypesLib kissfft::kissfft asound)
