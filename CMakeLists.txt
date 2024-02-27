@@ -12,7 +12,6 @@ set(CMAKE_CXX_STANDARD 20)
 
 # For audio interface
 find_library(ALSA_LIBRARY asound)
-target_link_libraries(LinuxModulesLib ${ALSA_LIBRARY})
 
 # Add an executable target
 add_executable(Processing_Server Processing_Server/main.cpp)
@@ -35,4 +34,4 @@ target_include_directories(Processing_Server
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Processing_Server/components/Generic_Modules/components/kissfft
 )
 
-target_link_libraries(Processing_Server PRIVATE GenericModuleLib LinuxModulesLib BaseModuleLib ChunkTypesLib kissfft::kissfft)
+target_link_libraries(Processing_Server PRIVATE GenericModuleLib LinuxModulesLib BaseModuleLib ChunkTypesLib kissfft::kissfft ${ALSA_LIBRARY})
