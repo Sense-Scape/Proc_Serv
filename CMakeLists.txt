@@ -10,6 +10,10 @@ message(STATUS "Building for Unix")
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 20)
 
+# For audio interface
+find_library(ALSA_LIBRARY asound)
+target_link_libraries(LinuxModulesLib ${ALSA_LIBRARY})
+
 # Add an executable target
 add_executable(Processing_Server Processing_Server/main.cpp)
 
