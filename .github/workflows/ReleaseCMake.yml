@@ -1,0 +1,50 @@
+name: C++ Build and Release on Linux
+
+on:
+  release:
+    types: [published]
+
+env:
+  BUILD_NAME: Processing_Server
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Install ALSA
+      run: sudo apt-get install libasound2-dev
+
+    - name: Checkout project and submodules
+      uses: actions/checkout@v3
+      with:
+        submodules: recursive
+
+    - name: Generate
+      run: cmake -B build -S . -D CMAKE_CXX_FLAGS="-fprofile-arcs -ftest-coverage"
+
+    - name: Build
+      run: make -C build
+
+    - name: Prepare for zip
+      run: |
+        mkdir build/toZip
+        ls
+        cp build/${{env.BUILD_NAME}} build/toZip/${{env.BUILD_NAME}}
+        cp Config.json build/toZip/Config.json
+        cp README.md build/toZip/README.md
+
+    - name: Zip Docs and Build
+      uses: TheDoctor0/zip-release@0.7.6
+      with:
+       directory: build/toZip # File to add to the archive
+       path: ./*
+       Filename: ${{env.BUILD_NAME}}.zip # The name of the archive file
+
+    - name: Upload to Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          build/toZip/${{env.BUILD_NAME}}.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
