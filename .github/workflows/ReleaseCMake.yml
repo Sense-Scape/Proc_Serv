@@ -5,7 +5,7 @@ on:
     types: [published]
 
 env:
-  BUILD_NAME: Processing_Server
+  BUILD_NAME: Proc_Serv
 
 jobs:
   build:
