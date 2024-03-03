@@ -5,7 +5,7 @@ on:
     types: [published]
 
 env:
-  BUILD_NAME: Processing_Server
+  BUILD_NAME: Proc_Serv
 
 jobs:
   build:
@@ -31,7 +31,7 @@ jobs:
         mkdir build/toZip
         ls
         cp build/${{env.BUILD_NAME}} build/toZip/${{env.BUILD_NAME}}
-        cp ${{env.BUILD_NAME}}/Config.json build/toZip/Config.json
+        cp Processing_Server/Config.json build/toZip/Config.json
         cp README.md build/toZip/README.md
 
     - name: Zip Docs and Build

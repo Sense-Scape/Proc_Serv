@@ -14,13 +14,13 @@ set(CMAKE_CXX_STANDARD 20)
 find_library(ALSA_LIBRARY asound)
 
 # Add an executable target
-add_executable(Processing_Server Processing_Server/main.cpp)
+add_executable(Proc_Serv Processing_Server/main.cpp)
 
 add_subdirectory(Processing_Server/components/Generic_Modules Generic_Modules)
 add_subdirectory(Processing_Server/components/Linux_Modules Linux_Modules)
 
 # Include directories for main code and tests
-target_include_directories(Processing_Server
+target_include_directories(Proc_Serv
     PRIVATE ${INCLUDE_DIR}
     PRIVATE ${INCLUDE_TESTS_DIR}
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Processing_Server/components/Linux_Modules/include
@@ -34,4 +34,4 @@ target_include_directories(Processing_Server
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Processing_Server/components/Generic_Modules/components/kissfft
 )
 
-target_link_libraries(Processing_Server PRIVATE GenericModuleLib LinuxModulesLib BaseModuleLib ChunkTypesLib kissfft::kissfft asound)
+target_link_libraries(Proc_Serv PRIVATE GenericModuleLib LinuxModulesLib BaseModuleLib ChunkTypesLib kissfft::kissfft asound)
