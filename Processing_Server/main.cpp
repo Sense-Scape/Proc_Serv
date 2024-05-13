@@ -174,6 +174,8 @@ int main()
 	pSessionChunkRouter->SetNextModule(nullptr); // Note: this module needs registered outputs not set outputs as it is a one to many
 
 	pSessionChunkRouter->RegisterOutputModule(pToJSONModule, ChunkType::TimeChunk);
+	pSessionChunkRouter->RegisterOutputModule(pToJSONModule, ChunkType::GPSChunk);
+
 	pSessionChunkRouter->RegisterOutputModule(pFFTProcModule, ChunkType::TimeChunk);
 
 	// FFT Proc Chain
