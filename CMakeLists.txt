@@ -17,13 +17,11 @@ find_library(ALSA_LIBRARY asound)
 add_executable(Proc_Serv Processing_Server/main.cpp)
 
 add_subdirectory(Processing_Server/components/Generic_Modules Generic_Modules)
-add_subdirectory(Processing_Server/components/Linux_Modules Linux_Modules)
 
 # Include directories for main code and tests
 target_include_directories(Proc_Serv
     PRIVATE ${INCLUDE_DIR}
     PRIVATE ${INCLUDE_TESTS_DIR}
-    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Processing_Server/components/Linux_Modules/include
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Processing_Server/components/Generic_Modules/include
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Processing_Server/components/Generic_Modules/components/Base_Module/include
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Processing_Server/components/Generic_Modules/components/Base_Module/components/Chunk_Types/
@@ -34,4 +32,4 @@ target_include_directories(Proc_Serv
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Processing_Server/components/Generic_Modules/components/kissfft
 )
 
-target_link_libraries(Proc_Serv PRIVATE GenericModuleLib LinuxModulesLib BaseModuleLib ChunkTypesLib kissfft::kissfft asound)
+target_link_libraries(Proc_Serv PRIVATE GenericModuleLib BaseModuleLib ChunkTypesLib kissfft::kissfft asound)

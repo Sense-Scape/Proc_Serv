@@ -1,12 +1,4 @@
 /* Standard Includes */
-#include <memory>
-#include <vector>
-#include <queue>
-#include <iostream>
-#include <thread>
-#include <mutex>
-#include <shared_mutex>
-#include <chrono>
 #include <fstream>
 
 /* Custom Includes */
@@ -173,6 +165,7 @@ int main()
 	pWAVSessionProcModule->SetNextModule(pSessionChunkRouter);
 	pSessionChunkRouter->SetNextModule(nullptr); // Note: this module needs registered outputs not set outputs as it is a one to many
 
+	pSessionChunkRouter->RegisterOutputModule(pToJSONModule, ChunkType::GPSChunk);
 	pSessionChunkRouter->RegisterOutputModule(pToJSONModule, ChunkType::TimeChunk);
 	pSessionChunkRouter->RegisterOutputModule(pFFTProcModule, ChunkType::TimeChunk);
 
@@ -196,6 +189,7 @@ int main()
 		PLOG_INFO << strInfo;
 
 		// WAV Processing Chain
+
 		pWAVAccumulatorModule = std::make_shared<WAVAccumulator>(fAccumulationPeriod_sec, dContinuityThresholdFactor, u16DefaultModuleBufferSize);
 		pTimeToWAVModule = std::make_shared<TimeToWAVModule>(u16DefaultModuleBufferSize);
 		pWAVWriterModule = std::make_shared<LinuxWAVWriterModule>(strRecordingFilePath, u16DefaultModuleBufferSize);
