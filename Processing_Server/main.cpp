@@ -14,6 +14,9 @@
 #include "LinuxMultiClientTCPRxModule.h"
 #include "LinuxWAVWriterModule.h"
 #include "LinuxTCPTxModule.h"
+#include "EnergyDetectionModule.h"
+#include "DirectionFindingModule.h"
+#include "TracerModule.h"
 
 /* External Libraries */
 #include <plog/Appenders/ColorConsoleAppender.h>
@@ -109,6 +112,13 @@ int main()
 	double dContinuityThresholdFactor;
 	std::string strRecordingFilePath;
 
+	// Energy Detection Module
+	float fDetectionThreshold_db;
+
+	// Direction Finding Module
+	double dPropogationVelocity_mps;
+	double dBaseLineLength_m;
+
 	// Hard coded defaults
 	uint16_t u16DefaultModuleBufferSize = 100;
 	uint16_t u16DefualtNetworkDataTransmissionSize = 512;
@@ -132,6 +142,14 @@ int main()
 		fAccumulationPeriod_sec = jsonConfig["PipelineConfig"]["WAVSubPipelineConfig"]["WAVAccumulatorModule"]["RecordingPeriod"];
 		dContinuityThresholdFactor = jsonConfig["PipelineConfig"]["WAVSubPipelineConfig"]["WAVAccumulatorModule"]["ContinuityThresholdFactor"];
 		strRecordingFilePath = jsonConfig["PipelineConfig"]["WAVSubPipelineConfig"]["WAVWriterModule"]["RecordingPath"];
+		
+		// Detection config
+		fDetectionThreshold_db = jsonConfig["PipelineConfig"]["EnergyDetectionModule"]["Threshold_dB"];
+
+		// DF config
+		dPropogationVelocity_mps = jsonConfig["PipelineConfig"]["DirectionFindingModule"]["PropogationVelovity_mps"];
+		dBaseLineLength_m = jsonConfig["PipelineConfig"]["DirectionFindingModule"]["BaseLineLength_m"];
+		
 	}
 	catch (const std::exception &e)
 	{
@@ -150,6 +168,8 @@ int main()
 
 	// // FFT proc
 	auto pFFTProcModule = std::make_shared<FFTModule>(u16DefaultModuleBufferSize);
+	auto pEnergyDetectionModule = std::make_shared<EnergyDetectionModule>(u16DefaultModuleBufferSize, fDetectionThreshold_db);
+	auto pDirectionFindingModule = std::make_shared<DirectionFindingModule>(u16DefaultModuleBufferSize, dPropogationVelocity_mps, dBaseLineLength_m);
 
 	// To Go Adapter
 	auto pToJSONModule = std::make_shared<ToJSONModule>();
@@ -166,12 +186,14 @@ int main()
 	pSessionChunkRouter->SetNextModule(nullptr); // Note: this module needs registered outputs not set outputs as it is a one to many
 
 	pSessionChunkRouter->RegisterOutputModule(pToJSONModule, ChunkType::GPSChunk);
-	pSessionChunkRouter->RegisterOutputModule(pToJSONModule, ChunkType::TimeChunk);
 	pSessionChunkRouter->RegisterOutputModule(pFFTProcModule, ChunkType::TimeChunk);
+	pSessionChunkRouter->RegisterOutputModule(pToJSONModule, ChunkType::TimeChunk);
 
 	// FFT Proc Chain
-	pFFTProcModule->SetNextModule(pToJSONModule);
+	pFFTProcModule->SetNextModule(pEnergyDetectionModule);
 	pFFTProcModule->SetGenerateMagnitudeData(true);
+	pEnergyDetectionModule->SetNextModule(pDirectionFindingModule);
+	pDirectionFindingModule->SetNextModule(pToJSONModule);
 
 	// To Go adapter
 	pToJSONModule->SetNextModule(pChunkToBytesModule);
@@ -189,7 +211,6 @@ int main()
 		PLOG_INFO << strInfo;
 
 		// WAV Processing Chain
-
 		pWAVAccumulatorModule = std::make_shared<WAVAccumulator>(fAccumulationPeriod_sec, dContinuityThresholdFactor, u16DefaultModuleBufferSize);
 		pTimeToWAVModule = std::make_shared<TimeToWAVModule>(u16DefaultModuleBufferSize);
 		pWAVWriterModule = std::make_shared<LinuxWAVWriterModule>(strRecordingFilePath, u16DefaultModuleBufferSize);
@@ -218,6 +239,8 @@ int main()
 	pChunkToBytesModule->StartProcessing();
 	pToJSONModule->StartProcessing();
 	pFFTProcModule->StartProcessing();
+	pEnergyDetectionModule->StartProcessing();
+	pDirectionFindingModule->StartProcessing();
 
 	while (1)
 	{
