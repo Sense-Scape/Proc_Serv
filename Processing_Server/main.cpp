@@ -14,6 +14,9 @@
 #include "LinuxMultiClientTCPRxModule.h"
 #include "LinuxWAVWriterModule.h"
 #include "LinuxTCPTxModule.h"
+#include "EnergyDetectionModule.h"
+#include "DirectionFindingModule.h"
+#include "TracerModule.h"
 
 /* External Libraries */
 #include <plog/Appenders/ColorConsoleAppender.h>
@@ -150,6 +153,8 @@ int main()
 
 	// // FFT proc
 	auto pFFTProcModule = std::make_shared<FFTModule>(u16DefaultModuleBufferSize);
+	auto pEnergyDetectionModule = std::make_shared<EnergyDetectionModule>(u16DefaultModuleBufferSize, 7);
+	auto pDirectionFindingModule = std::make_shared<DirectionFindingModule>(u16DefaultModuleBufferSize, 340,0.058);
 
 	// To Go Adapter
 	auto pToJSONModule = std::make_shared<ToJSONModule>();
@@ -166,12 +171,14 @@ int main()
 	pSessionChunkRouter->SetNextModule(nullptr); // Note: this module needs registered outputs not set outputs as it is a one to many
 
 	pSessionChunkRouter->RegisterOutputModule(pToJSONModule, ChunkType::GPSChunk);
-	pSessionChunkRouter->RegisterOutputModule(pToJSONModule, ChunkType::TimeChunk);
 	pSessionChunkRouter->RegisterOutputModule(pFFTProcModule, ChunkType::TimeChunk);
+	pSessionChunkRouter->RegisterOutputModule(pToJSONModule, ChunkType::TimeChunk);
 
 	// FFT Proc Chain
-	pFFTProcModule->SetNextModule(pToJSONModule);
+	pFFTProcModule->SetNextModule(pEnergyDetectionModule);
 	pFFTProcModule->SetGenerateMagnitudeData(true);
+	pEnergyDetectionModule->SetNextModule(pDirectionFindingModule);
+	pDirectionFindingModule->SetNextModule(pToJSONModule);
 
 	// To Go adapter
 	pToJSONModule->SetNextModule(pChunkToBytesModule);
@@ -189,7 +196,6 @@ int main()
 		PLOG_INFO << strInfo;
 
 		// WAV Processing Chain
-
 		pWAVAccumulatorModule = std::make_shared<WAVAccumulator>(fAccumulationPeriod_sec, dContinuityThresholdFactor, u16DefaultModuleBufferSize);
 		pTimeToWAVModule = std::make_shared<TimeToWAVModule>(u16DefaultModuleBufferSize);
 		pWAVWriterModule = std::make_shared<LinuxWAVWriterModule>(strRecordingFilePath, u16DefaultModuleBufferSize);
@@ -218,6 +224,8 @@ int main()
 	pChunkToBytesModule->StartProcessing();
 	pToJSONModule->StartProcessing();
 	pFFTProcModule->StartProcessing();
+	pEnergyDetectionModule->StartProcessing();
+	pDirectionFindingModule->StartProcessing();
 
 	while (1)
 	{
