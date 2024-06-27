@@ -27,6 +27,13 @@
 				"RecordData": "False",
 				"RecordingPath": "D:/Recordings_All/Recordings"
 			}
+		},
+		"EnergyDetectionModule": {
+			"Threshold_dB": "7"
+		},
+		"DirectionFindingModule": {
+			"PropogationVelovity_mps": "340",
+			"BaseLineLength_m": "0.056"
 		}
 	}
 }
