@@ -112,6 +112,13 @@ int main()
 	double dContinuityThresholdFactor;
 	std::string strRecordingFilePath;
 
+	// Energy Detection Module
+	float fDetectionThreshold_db;
+
+	// Direction Finding Module
+	double dPropogationVelocity_mps;
+	double dBaseLineLength_m;
+
 	// Hard coded defaults
 	uint16_t u16DefaultModuleBufferSize = 100;
 	uint16_t u16DefualtNetworkDataTransmissionSize = 512;
@@ -135,6 +142,14 @@ int main()
 		fAccumulationPeriod_sec = jsonConfig["PipelineConfig"]["WAVSubPipelineConfig"]["WAVAccumulatorModule"]["RecordingPeriod"];
 		dContinuityThresholdFactor = jsonConfig["PipelineConfig"]["WAVSubPipelineConfig"]["WAVAccumulatorModule"]["ContinuityThresholdFactor"];
 		strRecordingFilePath = jsonConfig["PipelineConfig"]["WAVSubPipelineConfig"]["WAVWriterModule"]["RecordingPath"];
+		
+		// Detection config
+		fDetectionThreshold_db = jsonConfig["PipelineConfig"]["EnergyDetectionModule"]["Threshold_dB"];
+
+		// DF config
+		dPropogationVelocity_mps = jsonConfig["PipelineConfig"]["DirectionFindingModule"]["PropogationVelovity_mps"];
+		dBaseLineLength_m = jsonConfig["PipelineConfig"]["DirectionFindingModule"]["BaseLineLength_m"];
+		
 	}
 	catch (const std::exception &e)
 	{
@@ -153,8 +168,8 @@ int main()
 
 	// // FFT proc
 	auto pFFTProcModule = std::make_shared<FFTModule>(u16DefaultModuleBufferSize);
-	auto pEnergyDetectionModule = std::make_shared<EnergyDetectionModule>(u16DefaultModuleBufferSize, 7);
-	auto pDirectionFindingModule = std::make_shared<DirectionFindingModule>(u16DefaultModuleBufferSize, 340,0.058);
+	auto pEnergyDetectionModule = std::make_shared<EnergyDetectionModule>(u16DefaultModuleBufferSize, fDetectionThreshold_db);
+	auto pDirectionFindingModule = std::make_shared<DirectionFindingModule>(u16DefaultModuleBufferSize, dPropogationVelocity_mps, dBaseLineLength_m);
 
 	// To Go Adapter
 	auto pToJSONModule = std::make_shared<ToJSONModule>();
