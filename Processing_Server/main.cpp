@@ -17,6 +17,7 @@
 #include "EnergyDetectionModule.h"
 #include "DirectionFindingModule.h"
 #include "TracerModule.h"
+#include "RateLimitingModule.h"
 
 /* External Libraries */
 #include <plog/Appenders/ColorConsoleAppender.h>
@@ -144,11 +145,11 @@ int main()
 		strRecordingFilePath = jsonConfig["PipelineConfig"]["WAVSubPipelineConfig"]["WAVWriterModule"]["RecordingPath"];
 		
 		// Detection config
-		fDetectionThreshold_db = jsonConfig["PipelineConfig"]["EnergyDetectionModule"]["Threshold_dB"];
-
+		fDetectionThreshold_db = std::stod(std::string(jsonConfig["PipelineConfig"]["EnergyDetectionModule"]["Threshold_dB"]));
+		
 		// DF config
-		dPropogationVelocity_mps = jsonConfig["PipelineConfig"]["DirectionFindingModule"]["PropogationVelovity_mps"];
-		dBaseLineLength_m = jsonConfig["PipelineConfig"]["DirectionFindingModule"]["BaseLineLength_m"];
+		dPropogationVelocity_mps = std::stod(std::string(jsonConfig["PipelineConfig"]["DirectionFindingModule"]["PropogationVelovity_mps"]));
+		dBaseLineLength_m = std::stod(std::string(jsonConfig["PipelineConfig"]["DirectionFindingModule"]["BaseLineLength_m"]));
 		
 	}
 	catch (const std::exception &e)
@@ -172,7 +173,8 @@ int main()
 	auto pDirectionFindingModule = std::make_shared<DirectionFindingModule>(u16DefaultModuleBufferSize, dPropogationVelocity_mps, dBaseLineLength_m);
 
 	// To Go Adapter
-	auto pToJSONModule = std::make_shared<ToJSONModule>();
+	auto pRateLimitingModule = std::make_shared<RateLimitingModule>(u16DefaultModuleBufferSize);
+	auto pToJSONModule = std::make_shared<ToJSONModule>(u16DefaultModuleBufferSize);
 	auto pChunkToBytesModule = std::make_shared<ChunkToBytesModule>(u16DefaultModuleBufferSize, u16DefualtNetworkDataTransmissionSize);
 	auto pTCPTXModule = std::make_shared<LinuxTCPTxModule>(strTCPTxIP, strTCPTxPort, u16DefaultModuleBufferSize, u16DefualtNetworkDataTransmissionSize);
 
@@ -187,19 +189,19 @@ int main()
 
 	pSessionChunkRouter->RegisterOutputModule(pToJSONModule, ChunkType::GPSChunk);
 	pSessionChunkRouter->RegisterOutputModule(pFFTProcModule, ChunkType::TimeChunk);
-	pSessionChunkRouter->RegisterOutputModule(pToJSONModule, ChunkType::TimeChunk);
 
 	// FFT Proc Chain
 	pFFTProcModule->SetNextModule(pEnergyDetectionModule);
 	pFFTProcModule->SetGenerateMagnitudeData(true);
 	pEnergyDetectionModule->SetNextModule(pDirectionFindingModule);
-	pDirectionFindingModule->SetNextModule(pToJSONModule);
+	pDirectionFindingModule->SetNextModule(pRateLimitingModule);
 
 	// To Go adapter
+	pRateLimitingModule->SetNextModule(pToJSONModule);
 	pToJSONModule->SetNextModule(pChunkToBytesModule);
 	pChunkToBytesModule->SetNextModule(pTCPTXModule);
 	pTCPTXModule->SetNextModule(nullptr);
-
+	
 	// Constructing WAV Subpipeline
 	std::shared_ptr<WAVAccumulator> pWAVAccumulatorModule;
 	std::shared_ptr<TimeToWAVModule> pTimeToWAVModule;
@@ -227,6 +229,12 @@ int main()
 		pWAVAccumulatorModule->StartProcessing();
 	}
 
+	uint64_t u64RateLimitPeriod_ns = 1'000'000'000/60;
+	pRateLimitingModule->SetChunkRateLimitInUsec(ChunkType::TimeChunk, u64RateLimitPeriod_ns);
+	pRateLimitingModule->SetChunkRateLimitInUsec(ChunkType::FFTChunk, u64RateLimitPeriod_ns);
+	pRateLimitingModule->SetChunkRateLimitInUsec(ChunkType::FFTMagnitudeChunk, u64RateLimitPeriod_ns);
+	pRateLimitingModule->SetChunkRateLimitInUsec(ChunkType::DirectionBinChunk, u64RateLimitPeriod_ns);
+
 	// ------------
 	// Start-Up
 	// ------------
@@ -237,6 +245,7 @@ int main()
 	pTCPRXModule->StartProcessing();
 	pTCPTXModule->StartProcessing();
 	pChunkToBytesModule->StartProcessing();
+	pRateLimitingModule->StartProcessing();
 	pToJSONModule->StartProcessing();
 	pFFTProcModule->StartProcessing();
 	pEnergyDetectionModule->StartProcessing();
