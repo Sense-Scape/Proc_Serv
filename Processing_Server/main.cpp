@@ -12,7 +12,7 @@
 #include "ChunkToBytesModule.h"
 #include "FFTModule.h"
 #include "LinuxMultiClientTCPRxModule.h"
-#include "LinuxWAVWriterModule.h"
+#include "WAVWriterModule.h"
 #include "LinuxTCPTxModule.h"
 #include "EnergyDetectionModule.h"
 #include "DirectionFindingModule.h"
