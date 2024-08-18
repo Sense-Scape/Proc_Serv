@@ -12,7 +12,7 @@
 #include "ChunkToBytesModule.h"
 #include "FFTModule.h"
 #include "LinuxMultiClientTCPRxModule.h"
-#include "LinuxWAVWriterModule.h"
+#include "WAVWriterModule.h"
 #include "LinuxTCPTxModule.h"
 #include "EnergyDetectionModule.h"
 #include "DirectionFindingModule.h"
@@ -205,7 +205,7 @@ int main()
 	// Constructing WAV Subpipeline
 	std::shared_ptr<WAVAccumulator> pWAVAccumulatorModule;
 	std::shared_ptr<TimeToWAVModule> pTimeToWAVModule;
-	std::shared_ptr<LinuxWAVWriterModule> pWAVWriterModule;
+	std::shared_ptr<WAVWriterModule> pWAVWriterModule;
 
 	if (bEnableWAVSubPipeline)
 	{
@@ -215,7 +215,7 @@ int main()
 		// WAV Processing Chain
 		pWAVAccumulatorModule = std::make_shared<WAVAccumulator>(fAccumulationPeriod_sec, dContinuityThresholdFactor, u16DefaultModuleBufferSize);
 		pTimeToWAVModule = std::make_shared<TimeToWAVModule>(u16DefaultModuleBufferSize);
-		pWAVWriterModule = std::make_shared<LinuxWAVWriterModule>(strRecordingFilePath, u16DefaultModuleBufferSize);
+		pWAVWriterModule = std::make_shared<WAVWriterModule>(strRecordingFilePath, u16DefaultModuleBufferSize);
 
 		// WAV Chain connections
 		pSessionChunkRouter->RegisterOutputModule(pTimeToWAVModule, ChunkType::TimeChunk);
