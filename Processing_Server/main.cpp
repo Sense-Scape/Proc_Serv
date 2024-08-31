@@ -7,13 +7,12 @@
 #include "RouterModule.h"
 #include "WAVAccumulator.h"
 #include "TimeToWAVModule.h"
-#include "HPFModule.h"
 #include "ToJSONModule.h"
 #include "ChunkToBytesModule.h"
 #include "FFTModule.h"
 #include "LinuxMultiClientTCPRxModule.h"
 #include "WAVWriterModule.h"
-#include "LinuxTCPTxModule.h"
+#include "TCPTxModule.h"
 #include "EnergyDetectionModule.h"
 #include "DirectionFindingModule.h"
 #include "TracerModule.h"
@@ -104,6 +103,7 @@ int main()
 	std::string strTCPRxPort;
 
 	// UDP Tx
+	bool bEnableTxSubPipeline;
 	std::string strTCPTxIP;
 	std::string strTCPTxPort;
 
@@ -133,7 +133,11 @@ int main()
 		// TCP Tx Module Config
 		strTCPTxIP = jsonConfig["PipelineConfig"]["TCPTxModule"]["IP"];
 		strTCPTxPort = jsonConfig["PipelineConfig"]["TCPTxModule"]["Port"];
-
+		std::string strEnableTXSubPipeline = jsonConfig["PipelineConfig"]["TCPTxModule"]["Enable"];
+		std::transform(strEnableTXSubPipeline.begin(), strEnableTXSubPipeline.end(), strEnableTXSubPipeline.begin(), [](unsigned char c)
+					   { return std::toupper(c); });
+		bEnableTxSubPipeline = (strEnableTXSubPipeline == "TRUE");
+		 
 		// WAV Accumulator config
 		std::string strEnableWAVSubPipeline = jsonConfig["PipelineConfig"]["WAVSubPipelineConfig"]["EnableSubPipeline"];
 		std::transform(strEnableWAVSubPipeline.begin(), strEnableWAVSubPipeline.end(), strEnableWAVSubPipeline.begin(), [](unsigned char c)
@@ -164,7 +168,7 @@ int main()
 
 	// Start of Processing Chain
 	auto pTCPRXModule = std::make_shared<LinuxMultiClientTCPRxModule>(strTCPRxIP, strTCPRxPort, u16DefaultModuleBufferSize, u16DefualtNetworkDataTransmissionSize);
-	auto pWAVSessionProcModule = std::make_shared<SessionProcModule>(u16DefaultModuleBufferSize);
+	auto pSessionProcModule = std::make_shared<SessionProcModule>(u16DefaultModuleBufferSize);
 	auto pSessionChunkRouter = std::make_shared<RouterModule>(u16DefaultModuleBufferSize);
 
 	// // FFT proc
@@ -176,32 +180,56 @@ int main()
 	auto pRateLimitingModule = std::make_shared<RateLimitingModule>(u16DefaultModuleBufferSize);
 	auto pToJSONModule = std::make_shared<ToJSONModule>(u16DefaultModuleBufferSize);
 	auto pChunkToBytesModule = std::make_shared<ChunkToBytesModule>(u16DefaultModuleBufferSize, u16DefualtNetworkDataTransmissionSize);
-	auto pTCPTXModule = std::make_shared<LinuxTCPTxModule>(strTCPTxIP, strTCPTxPort, u16DefaultModuleBufferSize, u16DefualtNetworkDataTransmissionSize);
-
+	auto pTCPTXModule = std::make_shared<TCPTxModule>(strTCPTxIP, strTCPTxPort, u16DefaultModuleBufferSize, u16DefualtNetworkDataTransmissionSize);
+		
 	// ------------
 	// Connection
 	// ------------
 
 	// Connection pipeline modules
-	pTCPRXModule->SetNextModule(pWAVSessionProcModule);
-	pWAVSessionProcModule->SetNextModule(pSessionChunkRouter);
+	pTCPRXModule->SetNextModule(pSessionProcModule);
+	pSessionProcModule->SetNextModule(pSessionChunkRouter);
 	pSessionChunkRouter->SetNextModule(nullptr); // Note: this module needs registered outputs not set outputs as it is a one to many
 
-	pSessionChunkRouter->RegisterOutputModule(pToJSONModule, ChunkType::GPSChunk);
-	pSessionChunkRouter->RegisterOutputModule(pFFTProcModule, ChunkType::TimeChunk);
+	if(bEnableTxSubPipeline)
+	{
+		pSessionChunkRouter->RegisterOutputModule(pToJSONModule, ChunkType::GPSChunk);
+		pSessionChunkRouter->RegisterOutputModule(pToJSONModule, ChunkType::QueueLengthChunk);
+		pSessionChunkRouter->RegisterOutputModule(pFFTProcModule, ChunkType::TimeChunk);
 
-	// FFT Proc Chain
-	pFFTProcModule->SetNextModule(pEnergyDetectionModule);
-	pFFTProcModule->SetGenerateMagnitudeData(true);
-	pEnergyDetectionModule->SetNextModule(pDirectionFindingModule);
-	pDirectionFindingModule->SetNextModule(pRateLimitingModule);
+		// FFT Proc Chain
+		pFFTProcModule->SetNextModule(pEnergyDetectionModule);
+		pFFTProcModule->SetGenerateMagnitudeData(true);
+		pEnergyDetectionModule->SetNextModule(pDirectionFindingModule);
+		pDirectionFindingModule->SetNextModule(pRateLimitingModule);
+		
+		uint64_t u64RateLimitPeriod_ns = 1'000'000'000/60;
+		pRateLimitingModule->SetChunkRateLimitInUsec(ChunkType::TimeChunk, u64RateLimitPeriod_ns);
+		pRateLimitingModule->SetChunkRateLimitInUsec(ChunkType::FFTChunk, u64RateLimitPeriod_ns);
+		pRateLimitingModule->SetChunkRateLimitInUsec(ChunkType::FFTMagnitudeChunk, u64RateLimitPeriod_ns);
+		pRateLimitingModule->SetChunkRateLimitInUsec(ChunkType::DirectionBinChunk, u64RateLimitPeriod_ns);
 
-	// To Go adapter
-	pRateLimitingModule->SetNextModule(pToJSONModule);
-	pToJSONModule->SetNextModule(pChunkToBytesModule);
-	pChunkToBytesModule->SetNextModule(pTCPTXModule);
-	pTCPTXModule->SetNextModule(nullptr);
-	
+		// To Go adapter
+		pRateLimitingModule->SetNextModule(pToJSONModule);	
+		pToJSONModule->SetNextModule(pChunkToBytesModule);
+		pChunkToBytesModule->SetNextModule(pTCPTXModule);
+		pTCPTXModule->SetNextModule(nullptr);
+		
+		pRateLimitingModule->StartReporting();
+		pFFTProcModule->StartReporting();
+		pEnergyDetectionModule->StartReporting();
+		pDirectionFindingModule->StartReporting();
+
+		pTCPTXModule->StartProcessing();
+		pChunkToBytesModule->StartProcessing();
+		pRateLimitingModule->StartProcessing();
+		pToJSONModule->StartProcessing();
+		pDirectionFindingModule->StartProcessing();
+
+		pFFTProcModule->StartProcessing();
+		pEnergyDetectionModule->StartProcessing();
+	}
+
 	// Constructing WAV Subpipeline
 	std::shared_ptr<WAVAccumulator> pWAVAccumulatorModule;
 	std::shared_ptr<TimeToWAVModule> pTimeToWAVModule;
@@ -213,9 +241,14 @@ int main()
 		PLOG_INFO << strInfo;
 
 		// WAV Processing Chain
-		pWAVAccumulatorModule = std::make_shared<WAVAccumulator>(fAccumulationPeriod_sec, dContinuityThresholdFactor, u16DefaultModuleBufferSize);
 		pTimeToWAVModule = std::make_shared<TimeToWAVModule>(u16DefaultModuleBufferSize);
+		pWAVAccumulatorModule = std::make_shared<WAVAccumulator>(fAccumulationPeriod_sec, dContinuityThresholdFactor, u16DefaultModuleBufferSize);
 		pWAVWriterModule = std::make_shared<WAVWriterModule>(strRecordingFilePath, u16DefaultModuleBufferSize);
+
+		
+		// pTimeToWAVModule->TrackProcessTime(true, "pTimeToWAVModule");
+		// pWAVAccumulatorModule->TrackProcessTime(true, "pWAVAccumulatorModule");
+		// pWAVWriterModule->TrackProcessTime(true, "pWAVWriterModule");
 
 		// WAV Chain connections
 		pSessionChunkRouter->RegisterOutputModule(pTimeToWAVModule, ChunkType::TimeChunk);
@@ -224,32 +257,20 @@ int main()
 		pWAVWriterModule->SetNextModule(nullptr); // Note: This is a termination module so has no next module
 
 		// Starting WAV Chain
-		pWAVWriterModule->StartProcessing();
 		pTimeToWAVModule->StartProcessing();
 		pWAVAccumulatorModule->StartProcessing();
+		pWAVWriterModule->StartProcessing();
+		
 	}
-
-	uint64_t u64RateLimitPeriod_ns = 1'000'000'000/60;
-	pRateLimitingModule->SetChunkRateLimitInUsec(ChunkType::TimeChunk, u64RateLimitPeriod_ns);
-	pRateLimitingModule->SetChunkRateLimitInUsec(ChunkType::FFTChunk, u64RateLimitPeriod_ns);
-	pRateLimitingModule->SetChunkRateLimitInUsec(ChunkType::FFTMagnitudeChunk, u64RateLimitPeriod_ns);
-	pRateLimitingModule->SetChunkRateLimitInUsec(ChunkType::DirectionBinChunk, u64RateLimitPeriod_ns);
 
 	// ------------
 	// Start-Up
 	// ------------
-
 	// Starting chain from its end to start
+	pSessionProcModule->StartProcessing();
 	pSessionChunkRouter->StartProcessing();
-	pWAVSessionProcModule->StartProcessing();
 	pTCPRXModule->StartProcessing();
-	pTCPTXModule->StartProcessing();
-	pChunkToBytesModule->StartProcessing();
-	pRateLimitingModule->StartProcessing();
-	pToJSONModule->StartProcessing();
-	pFFTProcModule->StartProcessing();
-	pEnergyDetectionModule->StartProcessing();
-	pDirectionFindingModule->StartProcessing();
+
 
 	while (1)
 	{
