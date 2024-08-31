@@ -1,39 +1,40 @@
 {
-	"LoggingConfig": {
-		"LoggingLevel": "Info",
-		"LogToTextFile": "True",
-		"LogToConsole": "True"
-	},
-	"PipelineConfig": {
-		"TCPTxModule": {
-			"IP": "127.0.0.1",
-			"Port": "10010"
-		},
-		"TCPRxModule": {
-			"IP": "127.0.0.1",
-			"Port": "10000"
-		},
-		"UDPTxModule": {
-			"IP": "127.0.0.1",
-			"Port": "8086"
-		},
-		"WAVSubPipelineConfig": {
-			"EnableSubPipeline": "False",
-			"WAVAccumulatorModule": {
-				"RecordingPeriod": 10,
-				"ContinuityThresholdFactor": 1
-			},
-			"WAVWriterModule": {
-				"RecordData": "False",
-				"RecordingPath": "D:/Recordings_All/Recordings"
-			}
-		},
-		"EnergyDetectionModule": {
-			"Threshold_dB": "7"
-		},
-		"DirectionFindingModule": {
-			"PropogationVelovity_mps": "340",
-			"BaseLineLength_m": "0.056"
-		}
-	}
+        "LoggingConfig": {
+                "LoggingLevel": "Info",
+                "LogToTextFile": "False",
+                "LogToConsole": "True"
+        },
+        "PipelineConfig": {
+                "TCPTxModule": {
+                        "IP": "127.0.0.1",
+                        "Port": "10010",
+                        "Enable":"TRUE"
+                },
+                "TCPRxModule": {
+                        "IP": "127.0.0.1",
+                        "Port": "10000"
+                },
+                "UDPTxModule": {
+                        "IP": "127.0.0.1",
+                        "Port": "8086"
+                },
+                "WAVSubPipelineConfig": {
+                        "EnableSubPipeline": "TRUE",
+                        "WAVAccumulatorModule": {
+                                "RecordingPeriod": 30,
+                                "ContinuityThresholdFactor": 100
+                        },
+                        "WAVWriterModule": {
+                                "RecordData": "TRUE",
+                                "RecordingPath": "./recordings"
+                        }
+                },
+                "EnergyDetectionModule": {
+                        "Threshold_dB": "80"
+                },
+                "DirectionFindingModule": {
+                        "PropogationVelovity_mps": "340",
+                        "BaseLineLength_m": "0.056"
+                }
+        }
 }
