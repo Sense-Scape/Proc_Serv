@@ -6,16 +6,16 @@
 	},
 	"PipelineConfig": {
 		"TCPTxModule": {
-			"IP": "127.0.0.1",
-			"Port": "10010"
+			"IP": "0.0.0.0",
+			"Port": 10010
 		},
 		"TCPRxModule": {
 			"IP": "127.0.0.1",
-			"Port": "10000"
+			"Port": 10000
 		},
 		"UDPTxModule": {
 			"IP": "127.0.0.1",
-			"Port": "8086"
+			"Port": 8086
 		},
 		"WAVSubPipelineConfig": {
 			"EnableSubPipeline": "False",
@@ -25,7 +25,7 @@
 			},
 			"WAVWriterModule": {
 				"RecordData": "False",
-				"RecordingPath": "D:/Recordings_All/Recordings"
+				"RecordingPath": "./Recordings"
 			}
 		},
 		"EnergyDetectionModule": {

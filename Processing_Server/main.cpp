@@ -7,17 +7,18 @@
 #include "RouterModule.h"
 #include "WAVAccumulator.h"
 #include "TimeToWAVModule.h"
-#include "HPFModule.h"
 #include "ToJSONModule.h"
 #include "ChunkToBytesModule.h"
 #include "FFTModule.h"
 #include "LinuxMultiClientTCPRxModule.h"
 #include "WAVWriterModule.h"
-#include "LinuxTCPTxModule.h"
+#include "TCPTxModule.h"
 #include "EnergyDetectionModule.h"
 #include "DirectionFindingModule.h"
 #include "TracerModule.h"
 #include "RateLimitingModule.h"
+#include "TimeChunkSynchronisationModule.h"
+#include "TCPRxModule.h"
 
 /* External Libraries */
 #include <plog/Appenders/ColorConsoleAppender.h>
@@ -101,14 +102,14 @@ int main()
 
 	// TCP Rx
 	std::string strTCPRxIP;
-	std::string strTCPRxPort;
+	uint16_t u16TCPRxPort;
 
 	// UDP Tx
 	std::string strTCPTxIP;
-	std::string strTCPTxPort;
+	uint16_t u16TCPTxPort;
 
 	// WAV Sub Pipeline
-	bool bEnableWAVSubPipeline;
+	bool bEnableWAVRecording;
 	float fAccumulationPeriod_sec;
 	double dContinuityThresholdFactor;
 	std::string strRecordingFilePath;
@@ -121,7 +122,7 @@ int main()
 	double dBaseLineLength_m;
 
 	// Hard coded defaults
-	uint16_t u16DefaultModuleBufferSize = 100;
+	uint16_t u16DefaultModuleBufferSize = 250;
 	uint16_t u16DefualtNetworkDataTransmissionSize = 512;
 
 	try // To load in config file
@@ -129,17 +130,17 @@ int main()
 		// Updating config variables
 		// TCP Rx Module Config
 		strTCPRxIP = jsonConfig["PipelineConfig"]["TCPRxModule"]["IP"];
-		strTCPRxPort = jsonConfig["PipelineConfig"]["TCPRxModule"]["Port"];
+		u16TCPRxPort = jsonConfig["PipelineConfig"]["TCPRxModule"]["Port"];
 		// TCP Tx Module Config
 		strTCPTxIP = jsonConfig["PipelineConfig"]["TCPTxModule"]["IP"];
-		strTCPTxPort = jsonConfig["PipelineConfig"]["TCPTxModule"]["Port"];
+		u16TCPTxPort = jsonConfig["PipelineConfig"]["TCPTxModule"]["Port"];
 
 		// WAV Accumulator config
-		std::string strEnableWAVSubPipeline = jsonConfig["PipelineConfig"]["WAVSubPipelineConfig"]["EnableSubPipeline"];
-		std::transform(strEnableWAVSubPipeline.begin(), strEnableWAVSubPipeline.end(), strEnableWAVSubPipeline.begin(), [](unsigned char c)
+		std::string strEnableWAVRecording = jsonConfig["PipelineConfig"]["WAVSubPipelineConfig"]["WAVWriterModule"]["RecordData"];
+		std::transform(strEnableWAVRecording.begin(), strEnableWAVRecording.end(), strEnableWAVRecording.begin(), [](unsigned char c)
 					   { return std::toupper(c); });
 
-		bEnableWAVSubPipeline = (strEnableWAVSubPipeline == "TRUE");
+		bEnableWAVRecording = (strEnableWAVRecording == "TRUE");
 		fAccumulationPeriod_sec = jsonConfig["PipelineConfig"]["WAVSubPipelineConfig"]["WAVAccumulatorModule"]["RecordingPeriod"];
 		dContinuityThresholdFactor = jsonConfig["PipelineConfig"]["WAVSubPipelineConfig"]["WAVAccumulatorModule"]["ContinuityThresholdFactor"];
 		strRecordingFilePath = jsonConfig["PipelineConfig"]["WAVSubPipelineConfig"]["WAVWriterModule"]["RecordingPath"];
@@ -158,56 +159,231 @@ int main()
 		throw;
 	}
 
-	// ------------
-	// Construction
-	// ------------
+	// ====================================
+	// 			Receive Chain
+	// ====================================
+	//auto pt = std::make_shared<TracerModule>("sss");
 
-	// Start of Processing Chain
-	auto pTCPRXModule = std::make_shared<LinuxMultiClientTCPRxModule>(strTCPRxIP, strTCPRxPort, u16DefaultModuleBufferSize, u16DefualtNetworkDataTransmissionSize);
-	auto pWAVSessionProcModule = std::make_shared<SessionProcModule>(u16DefaultModuleBufferSize);
+	auto pTCPRXModule = std::make_shared<LinuxMultiClientTCPRxModule>(strTCPRxIP, u16TCPRxPort, u16DefaultModuleBufferSize, u16DefualtNetworkDataTransmissionSize);
+	auto pSessionProcModule = std::make_shared<SessionProcModule>(u16DefaultModuleBufferSize);
 	auto pSessionChunkRouter = std::make_shared<RouterModule>(u16DefaultModuleBufferSize);
 
-	// // FFT proc
-	auto pFFTProcModule = std::make_shared<FFTModule>(u16DefaultModuleBufferSize);
-	auto pEnergyDetectionModule = std::make_shared<EnergyDetectionModule>(u16DefaultModuleBufferSize, fDetectionThreshold_db);
-	auto pDirectionFindingModule = std::make_shared<DirectionFindingModule>(u16DefaultModuleBufferSize, dPropogationVelocity_mps, dBaseLineLength_m);
-
-	// To Go Adapter
-	auto pRateLimitingModule = std::make_shared<RateLimitingModule>(u16DefaultModuleBufferSize);
-	auto pToJSONModule = std::make_shared<ToJSONModule>(u16DefaultModuleBufferSize);
-	auto pChunkToBytesModule = std::make_shared<ChunkToBytesModule>(u16DefaultModuleBufferSize, u16DefualtNetworkDataTransmissionSize);
-	auto pTCPTXModule = std::make_shared<LinuxTCPTxModule>(strTCPTxIP, strTCPTxPort, u16DefaultModuleBufferSize, u16DefualtNetworkDataTransmissionSize);
-
-	// ------------
-	// Connection
-	// ------------
-
-	// Connection pipeline modules
-	pTCPRXModule->SetNextModule(pWAVSessionProcModule);
-	pWAVSessionProcModule->SetNextModule(pSessionChunkRouter);
+	pTCPRXModule->SetNextModule(pSessionProcModule);
+	pSessionProcModule->SetNextModule(pSessionChunkRouter);
 	pSessionChunkRouter->SetNextModule(nullptr); // Note: this module needs registered outputs not set outputs as it is a one to many
 
-	pSessionChunkRouter->RegisterOutputModule(pToJSONModule, ChunkType::GPSChunk);
-	pSessionChunkRouter->RegisterOutputModule(pFFTProcModule, ChunkType::TimeChunk);
+	pTCPRXModule->StartProcessing();
+	pSessionProcModule->StartProcessing();
+	pSessionChunkRouter->StartProcessing();
 
-	// FFT Proc Chain
-	pFFTProcModule->SetNextModule(pEnergyDetectionModule);
-	pFFTProcModule->SetGenerateMagnitudeData(true);
-	pEnergyDetectionModule->SetNextModule(pDirectionFindingModule);
-	pDirectionFindingModule->SetNextModule(pRateLimitingModule);
+	pSessionProcModule->StartReporting();
+	// ====================================
 
-	// To Go adapter
-	pRateLimitingModule->SetNextModule(pToJSONModule);
-	pToJSONModule->SetNextModule(pChunkToBytesModule);
-	pChunkToBytesModule->SetNextModule(pTCPTXModule);
-	pTCPTXModule->SetNextModule(nullptr);
+
+	// ====================================
+	// 			Status Streaming Chain
+	// ====================================
+
+	auto u16StatusQueueSize = 25; // Limiting memory usage
+	auto u16StatusPort = 1996;
+
+	auto pReportingToJsonModule = std::make_shared<ToJSONModule>(u16StatusQueueSize);
+	auto pStatusChunkToBytesModule = std::make_shared<ChunkToBytesModule>(u16StatusQueueSize, u16DefualtNetworkDataTransmissionSize);
+	auto pStatusTCPExportModule = std::make_shared<TCPTxModule>(strTCPTxIP, u16StatusPort, u16StatusQueueSize, u16DefualtNetworkDataTransmissionSize,"Listen");
+
+	pReportingToJsonModule->SetNextModule(pStatusChunkToBytesModule);
+	pStatusChunkToBytesModule->SetNextModule(pStatusTCPExportModule);
+	pStatusTCPExportModule->SetNextModule(nullptr);
+
+	pReportingToJsonModule->StartProcessing();
+	pStatusChunkToBytesModule->StartProcessing();
+	pStatusTCPExportModule->StartProcessing();
+
+	// Enable to stream time data
+	pSessionChunkRouter->RegisterOutputModule(pReportingToJsonModule, ChunkType::JSONChunk);
+
+
+	// ====================================
+	// 			Time Sync Chain
+	// ====================================
+
+	auto u16TimeSyncPort = 1999;
 	
-	// Constructing WAV Subpipeline
+	auto pTimeSyncModule = std::make_shared<TimeChunkSynchronisationModule>(u16DefaultModuleBufferSize, 5000000, 5e9);
+	auto pTimeSyncChunkToBytesModule = std::make_shared<ChunkToBytesModule>(u16DefaultModuleBufferSize, u16DefualtNetworkDataTransmissionSize);
+	auto pTimeSyncTCPExportModule = std::make_shared<TCPTxModule>(strTCPTxIP, u16TimeSyncPort, u16DefaultModuleBufferSize, u16DefualtNetworkDataTransmissionSize,"Listen");
+
+	pTimeSyncModule->SetNextModule(pTimeSyncChunkToBytesModule);
+	pTimeSyncChunkToBytesModule->SetNextModule(pTimeSyncTCPExportModule);
+	pTimeSyncTCPExportModule->SetNextModule(nullptr);
+
+	pTimeSyncModule->StartProcessing();
+	pTimeSyncChunkToBytesModule->StartProcessing();
+	pTimeSyncTCPExportModule->StartProcessing();
+
+
+	pTimeSyncModule->SetReportingNextModule(pReportingToJsonModule);
+	pTimeSyncModule->SetReportingDescriptors("Server","0");
+	pTimeSyncModule->StartReporting();
+
+	// Enable to time sync time data
+	// pSessionChunkRouter->RegisterOutputModule(pTimeSyncModule, ChunkType::TimeChunk);
+	// pSessionChunkRouter->RegisterOutputModule(pTimeSyncModule, ChunkType::GPSChunk);
+
+	// ====================================
+
+
+	// ====================================
+	// 			Time Streaming Chain
+	// ====================================
+
+	auto u16TimeQueueSize = 100; // Limiting memory usage
+	auto u16TimePort = 1998;
+
+	auto pTimeRateLimitingModule = std::make_shared<RateLimitingModule>(u16TimeQueueSize);
+	auto pTimeChunkToBytesModule = std::make_shared<ChunkToBytesModule>(u16TimeQueueSize, u16DefualtNetworkDataTransmissionSize);
+	auto pTimeTCPExportModule = std::make_shared<TCPTxModule>(strTCPTxIP, u16TimePort, u16TimeQueueSize, u16DefualtNetworkDataTransmissionSize, "Listen");
+
+	pTimeRateLimitingModule->SetNextModule(pTimeChunkToBytesModule);
+	pTimeChunkToBytesModule->SetNextModule(pTimeTCPExportModule);
+	pTimeTCPExportModule->SetNextModule(nullptr);
+
+	pTimeRateLimitingModule->SetChunkRateLimitInUsec(ChunkType::TimeChunk, 1'000'000'000/(100)); // 100Hz
+
+	pTimeRateLimitingModule->StartProcessing();
+	pTimeChunkToBytesModule->StartProcessing();
+	pTimeTCPExportModule->StartProcessing();
+
+	pTimeRateLimitingModule->SetReportingNextModule(pReportingToJsonModule);
+	pTimeRateLimitingModule->SetReportingDescriptors("Server","TimeStream");
+	pTimeRateLimitingModule->StartReporting();
+
+	pTimeChunkToBytesModule->SetReportingNextModule(pReportingToJsonModule);
+	pTimeChunkToBytesModule->SetReportingDescriptors("Server","TimeStream");
+	pTimeChunkToBytesModule->StartReporting();
+
+	pTimeTCPExportModule->SetReportingNextModule(pReportingToJsonModule);
+	pTimeTCPExportModule->SetReportingDescriptors("Server","TimeStream");
+	pTimeTCPExportModule->StartReporting();
+
+	// Enable to stream time data
+	pSessionChunkRouter->RegisterOutputModule(pTimeRateLimitingModule, ChunkType::TimeChunk);
+
+	// ====================================
+	// 			GPS Streaming Chain
+	// ====================================
+
+	auto u16GPSQueueSize = 25; // Limiting memory usage
+	auto u16GPSPort = 1997;
+
+	auto pGPSChunkToBytesModule = std::make_shared<ChunkToBytesModule>(u16GPSQueueSize, u16DefualtNetworkDataTransmissionSize);
+	auto pGPSTCPExportModule = std::make_shared<TCPTxModule>(strTCPTxIP, u16GPSPort, u16GPSQueueSize, u16DefualtNetworkDataTransmissionSize, "Listen");
+
+	pGPSChunkToBytesModule->SetNextModule(pGPSTCPExportModule);
+	pGPSTCPExportModule->SetNextModule(nullptr);
+
+	pGPSChunkToBytesModule->StartProcessing();
+	pGPSTCPExportModule->StartProcessing();
+
+	pGPSChunkToBytesModule->SetReportingNextModule(pReportingToJsonModule);
+	pGPSChunkToBytesModule->SetReportingDescriptors("Server","GPSStream");
+	pGPSChunkToBytesModule->StartReporting();
+
+	pGPSTCPExportModule->SetReportingNextModule(pReportingToJsonModule);
+	pGPSTCPExportModule->SetReportingDescriptors("Server","GPSStream");
+	pGPSTCPExportModule->StartReporting();
+
+	// Enable to stream time data
+	pSessionChunkRouter->RegisterOutputModule(pGPSChunkToBytesModule, ChunkType::GPSChunk);
+
+    // ====================================
+	// 			Time Classifier TX Chain
+	// ====================================
+
+	auto u16ClassifierQueueSize = 100; // Limiting memory usage
+	auto u16ClassifierPort = 1995;
+
+	auto pClassifierChunkToBytesModule = std::make_shared<ChunkToBytesModule>(u16ClassifierQueueSize, u16DefualtNetworkDataTransmissionSize);
+	auto pClassifierTCPExportModule = std::make_shared<TCPTxModule>(strTCPTxIP, u16ClassifierPort, u16TimeQueueSize, u16DefualtNetworkDataTransmissionSize, "Listen");
+
+	pClassifierChunkToBytesModule->SetNextModule(pClassifierTCPExportModule);
+	pClassifierTCPExportModule->SetNextModule(nullptr);
+
+	pClassifierChunkToBytesModule->StartProcessing();
+	pClassifierTCPExportModule->StartProcessing();
+
+	pClassifierChunkToBytesModule->SetReportingNextModule(pReportingToJsonModule);
+	pClassifierChunkToBytesModule->SetReportingDescriptors("Server","ClassifierStream");
+	pClassifierChunkToBytesModule->StartReporting();
+
+	pClassifierTCPExportModule->SetReportingNextModule(pReportingToJsonModule);
+	pClassifierTCPExportModule->SetReportingDescriptors("Server","ClassifierStream");
+	pClassifierTCPExportModule->StartReporting();
+
+	// Enable to stream time data
+	pSessionChunkRouter->RegisterOutputModule(pClassifierChunkToBytesModule, ChunkType::TimeChunk);
+
+	// ====================================
+	// 			Time Classifier RX/TX Chain
+	// ====================================
+
+	auto u16ClassifierRxQueueSize = 100; 
+	auto u16ClassifierRxPort = 1994;
+	auto u16ClassifierTxPort = 1993;
+
+	auto pClassifierRxModule = std::make_shared<TCPRxModule>("0.0.0.0", u16ClassifierRxPort,u16ClassifierRxQueueSize,u16DefualtNetworkDataTransmissionSize,"Connect");
+	auto pClassifierSessionProcModule = std::make_shared<SessionProcModule>(u16DefaultModuleBufferSize);
+	auto pClassifierResultChunkToBytesModule = std::make_shared<ChunkToBytesModule>(u16GPSQueueSize, u16DefualtNetworkDataTransmissionSize);
+	auto pClassifierResultTCPExportModule = std::make_shared<TCPTxModule>(strTCPTxIP, u16ClassifierTxPort, u16GPSQueueSize, u16DefualtNetworkDataTransmissionSize, "Listen");
+
+	pClassifierRxModule->SetNextModule(pClassifierSessionProcModule);
+	pClassifierSessionProcModule->SetNextModule(pClassifierResultChunkToBytesModule);
+	
+	pClassifierResultChunkToBytesModule->SetNextModule(pClassifierResultTCPExportModule);
+	pClassifierResultTCPExportModule->SetNextModule(nullptr);
+	
+	pClassifierRxModule->StartProcessing();
+	pClassifierSessionProcModule->StartProcessing();
+	pClassifierResultChunkToBytesModule->StartProcessing();
+	pClassifierResultTCPExportModule->StartProcessing();
+
+	// ====================================
+	// 			Audio Stream TX Chain
+	// ====================================
+
+	auto u16AudioQueueSize = 100; // Limiting memory usage
+	auto u16AudioPort = 1992;
+
+	auto pAudioChunkToBytesModule = std::make_shared<ChunkToBytesModule>(u16AudioQueueSize, u16DefualtNetworkDataTransmissionSize);
+	auto pAudioTCPExportModule = std::make_shared<TCPTxModule>(strTCPTxIP, u16AudioPort, u16TimeQueueSize, u16DefualtNetworkDataTransmissionSize, "Listen");
+
+	pAudioChunkToBytesModule->SetNextModule(pAudioTCPExportModule);
+	pAudioTCPExportModule->SetNextModule(nullptr);
+
+	pAudioChunkToBytesModule->StartProcessing();
+	pAudioTCPExportModule->StartProcessing();
+
+	pAudioChunkToBytesModule->SetReportingNextModule(pReportingToJsonModule);
+	pAudioChunkToBytesModule->SetReportingDescriptors("Server","AudioStream");
+	pAudioChunkToBytesModule->StartReporting();
+
+	pAudioTCPExportModule->SetReportingNextModule(pReportingToJsonModule);
+	pAudioTCPExportModule->SetReportingDescriptors("Server","AudioStream");
+	pAudioTCPExportModule->StartReporting();
+
+	// Enable to stream time data
+	pSessionChunkRouter->RegisterOutputModule(pAudioChunkToBytesModule, ChunkType::TimeChunk);
+
+	// ====================================
+	// 			Audio Recording Chain
+	// ====================================
+
+		// Constructing WAV Subpipeline
 	std::shared_ptr<WAVAccumulator> pWAVAccumulatorModule;
 	std::shared_ptr<TimeToWAVModule> pTimeToWAVModule;
 	std::shared_ptr<WAVWriterModule> pWAVWriterModule;
 
-	if (bEnableWAVSubPipeline)
+	if (bEnableWAVRecording)
 	{
 		std::string strInfo = std::string(__FUNCTION__) + " Constructing WAV sub pipeline";
 		PLOG_INFO << strInfo;
@@ -229,27 +405,9 @@ int main()
 		pWAVAccumulatorModule->StartProcessing();
 	}
 
-	uint64_t u64RateLimitPeriod_ns = 1'000'000'000/60;
-	pRateLimitingModule->SetChunkRateLimitInUsec(ChunkType::TimeChunk, u64RateLimitPeriod_ns);
-	pRateLimitingModule->SetChunkRateLimitInUsec(ChunkType::FFTChunk, u64RateLimitPeriod_ns);
-	pRateLimitingModule->SetChunkRateLimitInUsec(ChunkType::FFTMagnitudeChunk, u64RateLimitPeriod_ns);
-	pRateLimitingModule->SetChunkRateLimitInUsec(ChunkType::DirectionBinChunk, u64RateLimitPeriod_ns);
+	// ====================================
+	
 
-	// ------------
-	// Start-Up
-	// ------------
-
-	// Starting chain from its end to start
-	pSessionChunkRouter->StartProcessing();
-	pWAVSessionProcModule->StartProcessing();
-	pTCPRXModule->StartProcessing();
-	pTCPTXModule->StartProcessing();
-	pChunkToBytesModule->StartProcessing();
-	pRateLimitingModule->StartProcessing();
-	pToJSONModule->StartProcessing();
-	pFFTProcModule->StartProcessing();
-	pEnergyDetectionModule->StartProcessing();
-	pDirectionFindingModule->StartProcessing();
 
 	while (1)
 	{
