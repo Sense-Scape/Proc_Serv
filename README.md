@@ -2,8 +2,10 @@
 
 ## Summary
 
-This is a processing server which sends is designed to recieve data from either the [simulator module](https://github.com/Sense-Scape/Windows_Sensor_Sim/tree/main) or the [ESP32 sensor](https://github.com/Sense-Scape/Acoustic_Sensor_ESP32).
-This module is configured using the ```Config.json``` file. 
+- This server is configured using the ```Config.json``` file
+- It is able to store and write received WAV data
+- It retransmits data received (GPS, synchronised time channels, single time stream) from sensor clients to third party clients (such as a UI) 
+- It is able to connect to a local classifier and stream data to it and forward results to additional clients
 
 ## Block Diagram
 

@@ -23,6 +23,10 @@ jobs:
       run: |
         sudo apt-get install libsndfile1
         sudo apt-get install libsndfile1-dev
+      
+    - name: Install GPS
+      run: |
+        sudo apt-get install gpsd gpsd-clients libgps-dev
         
     - name: Generate
       run: cmake -B build
