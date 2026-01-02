@@ -5,6 +5,8 @@ project(ProcessingServerProject CXX)
 # Set directory vars
 set(INCLUDE_DIR "include")
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 message(STATUS "Building for Unix")
 
 # Set C++ standard
@@ -12,14 +14,15 @@ set(CMAKE_CXX_STANDARD 20)
 
 # For audio interface
 find_library(ALSA_LIBRARY asound)
+find_package(CURL REQUIRED)
 
 # Add an executable target
-add_executable(Proc_Serv Processing_Server/main.cpp)
+add_executable(ProcServ Processing_Server/main.cpp)
 
 add_subdirectory(Processing_Server/components/Generic_Modules Generic_Modules)
 
 # Include directories for main code and tests
-target_include_directories(Proc_Serv
+target_include_directories(ProcServ
     PRIVATE ${INCLUDE_DIR}
     PRIVATE ${INCLUDE_TESTS_DIR}
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Processing_Server/components/Generic_Modules/include
@@ -31,5 +34,11 @@ target_include_directories(Proc_Serv
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Processing_Server/components/Generic_Modules/components/Base_Module/components/plog/include
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Processing_Server/components/Generic_Modules/components/kissfft
 )
-
-target_link_libraries(Proc_Serv PRIVATE GenericModuleLib BaseModuleLib ChunkTypesLib kissfft::kissfft asound)
+target_link_libraries(ProcServ PRIVATE 
+    GenericModuleLib 
+    BaseModuleLib 
+    ChunkTypesLib 
+    CURL::libcurl
+    kissfft::kissfft 
+    asound
+)

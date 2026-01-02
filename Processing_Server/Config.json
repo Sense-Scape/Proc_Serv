@@ -1,39 +1,45 @@
 {
 	"LoggingConfig": {
 		"LoggingLevel": "Info",
-		"LogToTextFile": "True",
-		"LogToConsole": "True"
+		"LogToTextFile": false,
+		"LogToConsole": true 
 	},
 	"PipelineConfig": {
 		"TCPTxModule": {
 			"IP": "0.0.0.0",
 			"Port": 10010
 		},
-		"TCPRxModule": {
+		"TCPRxClassifierModule": {
+			"IP": "127.0.0.1",
+			"Port": 1994,
+      "Mode": "Connect"
+		},
+		"TCPTxClassifierModule": {
+			"IP": "127.0.0.1",
+			"Port": 1995,
+      "Mode": "Connect"
+		},
+		"MultiSensorTCPRxModule": {
 			"IP": "127.0.0.1",
 			"Port": 10000
 		},
-		"UDPTxModule": {
-			"IP": "127.0.0.1",
-			"Port": 8086
-		},
+    "JSONAccumulator": {
+      "EnableJSONLogs" : false,
+      "ReportingPeriod_s" : 3
+    },
+    "HTTPPostModule" :
+    {
+      "EndPoint" : "http://127.0.0.1:2003/api/data"
+    },
 		"WAVSubPipelineConfig": {
-			"EnableSubPipeline": "False",
+			"EnableSubPipeline": false,
 			"WAVAccumulatorModule": {
 				"RecordingPeriod": 10,
-				"ContinuityThresholdFactor": 1
+				"ContinuityThresholdFactor": 100
 			},
 			"WAVWriterModule": {
-				"RecordData": "False",
 				"RecordingPath": "./Recordings"
 			}
-		},
-		"EnergyDetectionModule": {
-			"Threshold_dB": "7"
-		},
-		"DirectionFindingModule": {
-			"PropogationVelovity_mps": "340",
-			"BaseLineLength_m": "0.056"
 		}
 	}
 }
